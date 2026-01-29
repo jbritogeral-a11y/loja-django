@@ -1,0 +1,28 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 4rem auto; padding: 2rem; border: 1px solid var(--border); border-radius: var(--radius);">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Login</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem;">Nome de Utilizador</label>
+                <input type="text" name="username" class="form-control" required autofocus>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem;">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 2rem;">Entrar</button>
+    </form>
+</div>
+
+<style>
+    .form-control { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; }
+</style>
+{% endblock %}

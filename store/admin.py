@@ -32,7 +32,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    raw_id_fields = ['product']
     extra = 0
     can_delete = False
     readonly_fields = ['product', 'price', 'quantity']
@@ -67,7 +66,7 @@ class ClientAdmin(BaseUserAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'full_name', 'link_to_client', 'email', 'city', 'paid', 'status', 'created_at']
+    list_display = ['id', 'full_name', 'link_to_client', 'get_items_summary', 'total_price', 'paid', 'status', 'created_at']
     list_display_links = ['id', 'full_name'] 
     list_filter = ['paid', 'status', 'created_at']
     inlines = [OrderItemInline]
@@ -85,6 +84,11 @@ class OrderAdmin(admin.ModelAdmin):
             return format_html('<a href="{}" style="font-weight:bold;">Ver Ficha</a>', link)
         return "Visitante"
     link_to_client.short_description = "Cliente"
+
+    def get_items_summary(self, obj):
+        items = obj.items.all()
+        return ", ".join([f"{item.quantity}x {item.product.name}" for item in items])
+    get_items_summary.short_description = "Artigos na Encomenda"
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):

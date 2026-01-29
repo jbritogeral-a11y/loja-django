@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Product, Category, ProductVariant, Order, OrderItem
 from .cart import Cart
-from .forms import OrderCreateForm
+from .forms import OrderCreateForm, UserUpdateForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -41,8 +41,16 @@ def cart_detail(request):
 
 @login_required
 def profile(request):
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('store:profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+    
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'store/profile.html', {'orders': orders})
+    return render(request, 'store/profile.html', {'orders': orders, 'user_form': user_form})
 
 def checkout(request):
     cart = Cart(request)

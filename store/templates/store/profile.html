@@ -6,9 +6,38 @@
         <h1>Minha Conta</h1>
         <div>
             <span style="color: var(--text-muted);">Olá, {{ user.username }}</span>
-            <!-- Se tiver logout configurado, adicione o link aqui -->
+            <form action="{% url 'store:logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: red; cursor: pointer; text-decoration: underline; margin-left: 10px;">Sair</button>
+            </form>
         </div>
     </div>
+
+    <!-- Dados do Cliente -->
+    <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem;">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Os Meus Dados</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 0.3rem;">Primeiro Nome</label>
+                    {{ user_form.first_name }}
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 0.3rem;">Último Nome</label>
+                    {{ user_form.last_name }}
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 0.3rem;">Email</label>
+                    {{ user_form.email }}
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" style="width: auto; margin-top: 1rem; padding: 0.5rem 1.5rem;">
+                Atualizar Dados
+            </button>
+        </form>
+    </div>
+
 
     <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
         <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Histórico de Encomendas</h2>

@@ -1,5 +1,6 @@
 from django import forms
 from .models import Order
+from django.contrib.auth.models import User
 
 class OrderCreateForm(forms.ModelForm):
     class Meta:
@@ -15,4 +16,14 @@ class OrderCreateForm(forms.ModelForm):
             'full_name': 'Nome',
             'address': 'Morada',
             'city': 'Cidade',
+        }
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Primeiro Nome'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Último Nome'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
         }
