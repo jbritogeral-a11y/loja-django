@@ -1,33 +1,55 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 4rem auto; padding: 2rem; border: 1px solid var(--border); border-radius: var(--radius);">
-    <h1 style="text-align: center; margin-bottom: 2rem;">Login</h1>
+<div style="max-width: 400px; margin: 4rem auto; padding: 2.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; box-shadow: var(--shadow-sm);">
+    <h1 style="text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 600;">Bem-vindo</h1>
     
-    <form method="post">
+    <form method="post" action="{% url 'store:login' %}">
         {% csrf_token %}
         
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% if form.errors %}
+            <div style="background-color: #fee2e2; color: #ef4444; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 0.9rem; border: 1px solid #fca5a5;">
+                <p style="margin: 0; font-weight: 500;">Credenciais inválidas. Por favor tente novamente.</p>
+            </div>
+        {% endif %}
+
+        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
             <div>
-                <label style="display: block; margin-bottom: 0.5rem;">Nome de Utilizador</label>
-                <input type="text" name="username" class="form-control" required autofocus>
+                <label for="id_username" style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem;">Nome de Utilizador</label>
+                {{ form.username }}
             </div>
             <div>
-                <label style="display: block; margin-bottom: 0.5rem;">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label for="id_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem;">Palavra-passe</label>
+                {{ form.password }}
             </div>
         </div>
 
-        <button type="submit" class="btn-primary" style="margin-top: 2rem;">Entrar</button>
+        <button type="submit" class="btn-primary" style="margin-top: 2rem; width: 100%; font-size: 1rem; padding: 1rem;">Entrar na Conta</button>
         
-        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; border-top: 1px solid #eee; padding-top: 1rem;">
-            Ainda não tem conta? <br>
-            <a href="{% url 'store:register' %}" style="color: var(--accent); font-weight: 600; text-decoration: underline;">Criar Conta Nova</a>
+        <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 1.5rem;">
+            Ainda não é cliente? 
+            <a href="{% url 'store:register' %}" style="color: var(--accent); font-weight: 600; text-decoration: none; margin-left: 0.3rem;">Criar Conta</a>
         </div>
     </form>
 </div>
 
 <style>
-    .form-control { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; }
+    /* Estilo direto para os campos gerados pelo Django */
+    #id_username, #id_password { 
+        width: 100%; 
+        padding: 0.85rem; 
+        border: 1px solid var(--border); 
+        border-radius: var(--radius); 
+        font-family: inherit;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: var(--gray-light);
+    }
+    #id_username:focus, #id_password:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+    }
 </style>
 {% endblock %}
