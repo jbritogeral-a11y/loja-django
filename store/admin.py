@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import timedelta
+from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
@@ -189,3 +193,45 @@ class CeremonyRegistrationInline(admin.TabularInline):
 class CeremonyAdmin(admin.ModelAdmin):
     list_display = ['name', 'event_date']
     inlines = [CeremonyRegistrationInline]
+
+# --- DASHBOARD PERSONALIZADO ---
+def admin_dashboard(request, extra_context=None):
+    # 1. Top 10 Artigos Mais Vendidos
+    top_products = OrderItem.objects.values('product__name').annotate(total_sold=Sum('quantity')).order_by('-total_sold')[:10]
+
+    # 2. Total Vendas (Mês, Semana, Dia) - Apenas encomendas pagas
+    now = timezone.now()
+    orders = Order.objects.filter(paid=True)
+    
+    sales_day = orders.filter(created_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or 0
+    
+    start_week = now - timedelta(days=now.weekday())
+    sales_week = orders.filter(created_at__gte=start_week).aggregate(total=Sum('total_price'))['total'] or 0
+    
+    start_month = now.replace(day=1)
+    sales_month = orders.filter(created_at__gte=start_month).aggregate(total=Sum('total_price'))['total'] or 0
+
+    # 3. Número de Clientes (Excluindo Staff)
+    total_clients = Client.objects.filter(is_staff=False).count()
+
+    # 4. Total de Clientes por Cerimónia
+    ceremonies = Ceremony.objects.annotate(total_registrations=Count('registrations'))
+
+    # 5. Encomendas Recentes
+    recent_orders = Order.objects.order_by('-created_at')[:5]
+
+    # Obtém a lista de apps padrão para manter o menu de gestão acessível
+    app_list = admin.site.get_app_list(request)
+
+    context = {
+        **admin.site.each_context(request),
+        'title': 'Dashboard da Loja',
+        'app_list': app_list,
+        'top_products': top_products,
+        'sales_day': sales_day, 'sales_week': sales_week, 'sales_month': sales_month,
+        'total_clients': total_clients, 'ceremonies': ceremonies, 'recent_orders': recent_orders,
+    }
+    return TemplateResponse(request, 'admin/dashboard.html', context)
+
+# Substitui a página inicial do Admin pelo nosso Dashboard
+admin.site.index = admin_dashboard
