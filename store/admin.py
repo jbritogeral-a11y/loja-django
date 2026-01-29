@@ -56,8 +56,8 @@ class ProfileInline(admin.TabularInline):
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
     model = Order
-    fields = ['display_id', 'created_at', 'status', 'total_price', 'paid', 'view_details']
-    readonly_fields = ['display_id', 'created_at', 'view_details']
+    fields = ['display_id', 'created_at', 'status', 'total_price', 'paid']
+    readonly_fields = ['display_id', 'created_at']
     extra = 0
     can_delete = False
     show_change_link = False
@@ -67,13 +67,15 @@ class OrderInlineUser(admin.TabularInline):
         return False
 
     def display_id(self, obj):
-        return format_html('<span style="font-size: 1.3rem; font-weight: bold;">#{}</span>', obj.id)
-    display_id.short_description = "Encomenda"
-
-    def view_details(self, obj):
         url = reverse("admin:store_order_change", args=[obj.id])
-        return format_html('<a href="{}" style="display: inline-block; background-color: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 13px; text-transform: uppercase;">VER DETALHES</a>', url)
-    view_details.short_description = "Ações"
+        return format_html(
+            '<div style="display: flex; align-items: center;">'
+            '<span style="font-size: 1.5rem; font-weight: bold; margin-right: 15px;">#{}</span>'
+            '<a href="{}" style="background-color: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 12px; text-transform: uppercase;">VER DETALHES</a>'
+            '</div>',
+            obj.id, url
+        )
+    display_id.short_description = "Encomenda"
 
 # --- GESTÃO DE CLIENTES (APENAS CLIENTES) ---
 @admin.register(Client)
