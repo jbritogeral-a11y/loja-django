@@ -37,19 +37,19 @@
             <h3 style="margin-top: 0;">Resumo</h3>
             
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
-                {% for item in cart_items %}
+                {% for item in cart %}
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
                     <div>
-                        <strong>{{ item.quantity }}x</strong> {{ item.product.name }}
+                        <strong>{{ item.quantity }}x</strong> {{ item.product.name }} {% if item.variant %}({{ item.variant.name }}){% endif %}
                     </div>
-                    <div>{{ item.total_price }}€</div>
+                    <div>{{ item.get_total_price }}€</div>
                 </div>
                 {% endfor %}
             </div>
 
             <div style="border-top: 1px solid #ddd; padding-top: 1rem; display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem;">
                 <span>Total</span>
-                <span>{{ total }}€</span>
+                <span>{{ cart.get_total_price }}€</span>
             </div>
         </div>
 

@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, ProductVariant
+from .models import Product, Category, ProductVariant, Order, OrderItem
 from .cart import Cart
+from .forms import OrderCreateForm
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 def product_list(request):
     products = Product.objects.filter(is_active=True)
@@ -33,3 +37,52 @@ def cart_remove(request, cart_key):
 
 def cart_detail(request):
     return render(request, 'store/cart_detail.html')
+
+def checkout(request):
+    cart = Cart(request)
+    if not cart:
+        return redirect('store:product_list')
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.total_price = cart.get_total_price()
+            order.save()
+            
+            for item in cart:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    price=item['price'],
+                    quantity=item['quantity'],
+                    variant=item.get('variant')
+                )
+            
+            cart.clear()
+            
+            # Enviar emails de confirmação
+            subject = f'Confirmação da Encomenda #{order.id}'
+            message = f'Olá {order.full_name},\n\nObrigado pela sua encomenda! O total foi de {order.total_price}€.\n\nEnviaremos novidades sobre o envio em breve.'
+            
+            try:
+                # Email para o cliente
+                send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
+                
+                # Email para o admin
+                send_mail(
+                    f'Nova Encomenda #{order.id}',
+                    f'Recebeu uma nova encomenda de {order.full_name} no valor de {order.total_price}€.',
+                    settings.EMAIL_HOST_USER,
+                    ['seu_email_de_admin@exemplo.com'], # Substitua pelo seu email
+                    fail_silently=True
+                )
+            except Exception as e:
+                # Não impede o fluxo, mas regista o erro na consola do servidor
+                print(f"ERRO AO ENVIAR EMAIL: {e}")
+
+            return render(request, 'store/order_success.html', {'order': order})
+    else:
+        form = OrderCreateForm()
+
+    return render(request, 'store/checkout.html', {'form': form})
