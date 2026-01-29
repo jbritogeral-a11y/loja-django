@@ -153,3 +153,19 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Perfil de {self.user.username}"
+
+class Ceremony(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Nome da Cerimónia")
+    description = models.TextField(verbose_name="Descrição")
+    image = models.ImageField(upload_to='ceremonies/', verbose_name="Imagem")
+    event_date = models.DateTimeField(verbose_name="Data de Realização")
+
+    def __str__(self):
+        return self.name
+
+class CeremonyRegistration(models.Model):
+    ceremony = models.ForeignKey(Ceremony, related_name='registrations', on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200, verbose_name="Nome Completo")
+    email = models.EmailField(verbose_name="Email")
+    payment_preference = models.CharField(max_length=100, verbose_name="Preferência de Pagamento", help_text="Ex: Transferência, MBWAY, Numerário")
+    created_at = models.DateTimeField(auto_now_add=True)

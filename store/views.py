@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, ProductVariant, Order, OrderItem
+from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony
 from .cart import Cart
-from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm
+from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.db.models import Q
+from django.utils import timezone
 
 
 def product_list(request, category_slug=None):
@@ -167,3 +168,23 @@ def checkout(request):
         form = OrderCreateForm(initial=initial_data)
 
     return render(request, 'store/checkout.html', {'form': form})
+
+def ceremony_list(request):
+    # Mostra apenas cerimónias futuras (data maior ou igual a hoje)
+    ceremonies = Ceremony.objects.filter(event_date__gte=timezone.now()).order_by('event_date')
+    return render(request, 'store/ceremony_list.html', {'ceremonies': ceremonies})
+
+def ceremony_detail(request, ceremony_id):
+    ceremony = get_object_or_404(Ceremony, id=ceremony_id)
+    
+    if request.method == 'POST':
+        form = CeremonyRegistrationForm(request.POST)
+        if form.is_valid():
+            registration = form.save(commit=False)
+            registration.ceremony = ceremony
+            registration.save()
+            return render(request, 'store/ceremony_success.html', {'ceremony': ceremony})
+    else:
+        form = CeremonyRegistrationForm()
+        
+    return render(request, 'store/ceremony_detail.html', {'ceremony': ceremony, 'form': form})

@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile, Ceremony, CeremonyRegistration
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -178,3 +178,14 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 
 admin.site.register(PaymentMethod)
 admin.site.register(ShippingMethod)
+
+class CeremonyRegistrationInline(admin.TabularInline):
+    model = CeremonyRegistration
+    extra = 0
+    readonly_fields = ['full_name', 'email', 'payment_preference', 'created_at']
+    can_delete = False
+
+@admin.register(Ceremony)
+class CeremonyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'event_date']
+    inlines = [CeremonyRegistrationInline]

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order
+from .models import Order, CeremonyRegistration
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -45,3 +45,13 @@ class UserRegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+class CeremonyRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = CeremonyRegistration
+        fields = ['full_name', 'email', 'payment_preference']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'O seu nome'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'O seu email'}),
+            'payment_preference': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: MBWAY, Transferência...'}),
+        }
