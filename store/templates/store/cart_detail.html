@@ -4,7 +4,7 @@
 <h1 style="margin-bottom: 2rem;">O seu Carrinho</h1>
 
 {% if cart|length > 0 %}
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+    <div class="cart-layout">
         <!-- Lista de Itens -->
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
             {% for item in cart %}
@@ -42,4 +42,11 @@
         <a href="/" class="btn-primary" style="width: auto; display: inline-block; margin-top: 1rem;">Ver Produtos</a>
     </div>
 {% endif %}
+
+<style>
+    .cart-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; }
+    @media (max-width: 768px) {
+        .cart-layout { grid-template-columns: 1fr; gap: 2rem; }
+    }
+</style>
 {% endblock %}

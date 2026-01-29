@@ -15,16 +15,16 @@
 {% endif %}
 
 <!-- Barra de Pesquisa e Título -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+<div class="search-bar-container">
     <h2 style="margin: 0;">
         {% if category %}{{ category.name }}
         {% elif query %}Resultados para "{{ query }}"
         {% else %}Todos os Produtos{% endif %}
     </h2>
     
-    <form method="get" action="{% url 'store:product_list' %}" style="display: flex; gap: 0.5rem;">
+    <form method="get" action="{% url 'store:product_list' %}" class="search-form">
         <input type="text" name="q" placeholder="Pesquisar produtos..." value="{{ query|default:'' }}" 
-               style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); width: 250px;">
+               style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); width: 100%;">
         <button type="submit" class="btn-primary" style="width: auto; margin: 0;">🔍</button>
     </form>
 </div>
@@ -110,6 +110,18 @@
             height: 300px;
             min-height: auto;
         }
+    }
+
+    /* Estilos da Barra de Pesquisa */
+    .search-bar-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .search-form { display: flex; gap: 0.5rem; }
+    .search-form input { width: 250px; }
+
+    @media (max-width: 600px) {
+        .search-bar-container { flex-direction: column; align-items: stretch; }
+        .search-form { width: 100%; }
+        .search-form input { width: 100%; }
+        h2 { text-align: center; font-size: 1.5rem; }
     }
 </style>
 {% endblock %}
