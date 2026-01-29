@@ -4,6 +4,7 @@ from .cart import Cart
 from .forms import OrderCreateForm
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 
 def product_list(request):
@@ -38,6 +39,11 @@ def cart_remove(request, cart_key):
 def cart_detail(request):
     return render(request, 'store/cart_detail.html')
 
+@login_required
+def profile(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'store/profile.html', {'orders': orders})
+
 def checkout(request):
     cart = Cart(request)
     if not cart:
@@ -47,6 +53,9 @@ def checkout(request):
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
+            # Associar encomenda ao cliente logado
+            if request.user.is_authenticated:
+                order.user = request.user
             order.total_price = cart.get_total_price()
             order.save()
             

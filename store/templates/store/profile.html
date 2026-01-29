@@ -1,0 +1,49 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>Minha Conta</h1>
+        <div>
+            <span style="color: var(--text-muted);">Olá, {{ user.username }}</span>
+            <!-- Se tiver logout configurado, adicione o link aqui -->
+        </div>
+    </div>
+
+    <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Histórico de Encomendas</h2>
+
+        {% if orders %}
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {% for order in orders %}
+                <div style="border: 1px solid #eee; padding: 1rem; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>Encomenda #{{ order.id }}</strong>
+                        <span style="
+                            padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;
+                            {% if order.status == 'completed' %}background: #d4edda; color: #155724;
+                            {% elif order.status == 'canceled' %}background: #f8d7da; color: #721c24;
+                            {% else %}background: #fff3cd; color: #856404;{% endif %}
+                        ">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666; display: flex; justify-content: space-between;">
+                        <span>{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                        <span style="font-weight: 600; color: #333;">{{ order.total_price }} €</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #eee; font-size: 0.85rem;">
+                        {% for item in order.items.all %}
+                            <div>{{ item.quantity }}x {{ item.product.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted);">Ainda não efetuou nenhuma encomenda.</p>
+            <a href="/" class="btn-primary" style="display: inline-block; width: auto; margin-top: 1rem;">Ir para a Loja</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

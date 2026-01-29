@@ -98,6 +98,11 @@
             {% endfor %}
         </nav>
         <nav>
+            {% if user.is_authenticated %}
+                <a href="{% url 'store:profile' %}" class="nav-link" style="margin-right: 15px;">Minha Conta</a>
+            {% else %}
+                <a href="/admin/" class="nav-link" style="margin-right: 15px;">Login</a>
+            {% endif %}
             <a href="{% url 'store:cart_detail' %}" class="nav-link">Carrinho ({{ cart|length }})</a>
         </nav>
     </header>
