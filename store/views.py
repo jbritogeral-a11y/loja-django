@@ -9,6 +9,9 @@ from django.contrib.auth import login
 from django.db.models import Q
 from django.utils import timezone
 
+# Função auxiliar para obter configurações em todas as views
+def get_common_context():
+    return {'site_settings': SiteSettings.objects.first()}
 
 def product_list(request, category_slug=None):
     category = None
@@ -29,16 +32,20 @@ def product_list(request, category_slug=None):
     if not category_slug and not query:
         featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
 
-    return render(request, 'store/product_list.html', {
+    context = {
         'products': products, 
         'category': category,
         'featured_products': featured_products,
         'query': query
-    })
+    }
+    context.update(get_common_context())
+    return render(request, 'store/product_list.html', context)
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    return render(request, 'store/product_detail.html', {'product': product})
+    context = {'product': product}
+    context.update(get_common_context())
+    return render(request, 'store/product_detail.html', context)
 
 def cart_add(request, product_id):
     cart = Cart(request)
@@ -60,7 +67,9 @@ def cart_remove(request, cart_key):
     return redirect('store:cart_detail')
 
 def cart_detail(request):
-    return render(request, 'store/cart_detail.html')
+    context = {}
+    context.update(get_common_context())
+    return render(request, 'store/cart_detail.html', context)
 
 @login_required
 def profile(request):
@@ -77,7 +86,9 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
     
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'store/profile.html', {'orders': orders, 'user_form': user_form})
+    context = {'orders': orders, 'user_form': user_form}
+    context.update(get_common_context())
+    return render(request, 'store/profile.html', context)
 
 def register(request):
     if request.method == 'POST':
@@ -88,7 +99,9 @@ def register(request):
             return redirect('store:product_list')
     else:
         form = UserRegisterForm()
-    return render(request, 'store/register.html', {'form': form})
+    context = {'form': form}
+    context.update(get_common_context())
+    return render(request, 'store/register.html', context)
 
 def checkout(request):
     cart = Cart(request)
@@ -167,12 +180,16 @@ def checkout(request):
         
         form = OrderCreateForm(initial=initial_data)
 
-    return render(request, 'store/checkout.html', {'form': form})
+    context = {'form': form}
+    context.update(get_common_context())
+    return render(request, 'store/checkout.html', context)
 
 def ceremony_list(request):
     # Mostra apenas cerimónias futuras (data maior ou igual a hoje)
     ceremonies = Ceremony.objects.filter(event_date__gte=timezone.now()).order_by('event_date')
-    return render(request, 'store/ceremony_list.html', {'ceremonies': ceremonies})
+    context = {'ceremonies': ceremonies}
+    context.update(get_common_context())
+    return render(request, 'store/ceremony_list.html', context)
 
 def ceremony_detail(request, ceremony_id):
     ceremony = get_object_or_404(Ceremony, id=ceremony_id)
@@ -183,11 +200,15 @@ def ceremony_detail(request, ceremony_id):
             registration = form.save(commit=False)
             registration.ceremony = ceremony
             registration.save()
-            return render(request, 'store/ceremony_success.html', {'ceremony': ceremony})
+            context = {'ceremony': ceremony}
+            context.update(get_common_context())
+            return render(request, 'store/ceremony_success.html', context)
     else:
         form = CeremonyRegistrationForm()
         
-    return render(request, 'store/ceremony_detail.html', {'ceremony': ceremony, 'form': form})
+    context = {'ceremony': ceremony, 'form': form}
+    context.update(get_common_context())
+    return render(request, 'store/ceremony_detail.html', context)
 
 def contact_view(request):
     if request.method == 'POST':
@@ -205,7 +226,11 @@ def contact_view(request):
             except:
                 pass # Em produção deve-se logar o erro
                 
-            return render(request, 'store/contact_success.html')
+            context = {}
+            context.update(get_common_context())
+            return render(request, 'store/contact_success.html', context)
     else:
         form = ContactForm()
-    return render(request, 'store/contact.html', {'form': form})
+    context = {'form': form}
+    context.update(get_common_context())
+    return render(request, 'store/contact.html', context)
