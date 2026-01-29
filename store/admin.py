@@ -2,11 +2,12 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 admin.site.unregister(Group) # Remove "Grupos" para limpar o CMS
+admin.site.unregister(User) # Remove o menu "Users" original para evitar confusão
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -51,18 +52,47 @@ class OrderInlineUser(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
-# Gestão de Clientes (Aparece no menu da Loja)
+# --- GESTÃO DE CLIENTES (APENAS CLIENTES) ---
 @admin.register(Client)
 class ClientAdmin(BaseUserAdmin):
     inlines = [OrderInlineUser]
-    list_display = ['username', 'email', 'get_last_city', 'date_joined']
-    list_filter = ['is_active', 'date_joined']
+    list_display = ('username', 'email', 'first_name', 'last_name', 'date_joined')
+    list_filter = ('date_joined',)
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    ordering = ('username',)
+
+    # 1. Mostra apenas utilizadores que NÃO SÃO administradores
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(is_staff=False)
+
+    # 2. Garante que um novo utilizador criado aqui é SEMPRE um cliente
+    def save_model(self, request, obj, form, change):
+        obj.is_staff = False
+        obj.is_superuser = False
+        super().save_model(request, obj, form, change)
+
+    # 3. Esconde todos os campos de permissões do formulário
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Informação Pessoal', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Datas Importantes', {'fields': ('last_login', 'date_joined')}),
+    )
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        (None, {'fields': ('first_name', 'last_name')}),
+    )
+    filter_horizontal = ()
+
+# --- GESTÃO DE ADMINISTRADORES (APENAS STAFF) ---
+@admin.register(Administrator)
+class AdministratorAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'is_superuser', 'last_login')
+    list_filter = ('is_superuser',)
+    search_fields = ('username', 'email')
+    ordering = ('username',)
     
-    def get_last_city(self, obj):
-        # Tenta obter a cidade da última encomenda do cliente
-        last_order = Order.objects.filter(user=obj).order_by('-created_at').first()
-        return last_order.city if last_order else "-"
-    get_last_city.short_description = "Cidade (Última)"
+    # Mostra apenas utilizadores que SÃO administradores
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(is_staff=True)
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -80,11 +110,17 @@ class OrderAdmin(admin.ModelAdmin):
 
     def link_to_client(self, obj):
         if obj.user:
-            # Cria um link HTML para a página de edição do Cliente
-            link = reverse("admin:store_client_change", args=[obj.user.id])
-            return format_html('<a href="{}" style="font-weight:bold;">Ver Ficha</a>', link)
+            # Link inteligente: vai para a ficha de Cliente ou de Administrador
+            if obj.user.is_staff:
+                url_name = "admin:store_administrator_change"
+                label = "Ver Admin"
+            else:
+                url_name = "admin:store_client_change"
+                label = "Ver Cliente"
+            link = reverse(url_name, args=[obj.user.id])
+            return format_html('<a href="{}">{}</a>', link, label)
         return "Visitante"
-    link_to_client.short_description = "Cliente"
+    link_to_client.short_description = "Ficha"
 
     def get_items_summary(self, obj):
         items = obj.items.all()
