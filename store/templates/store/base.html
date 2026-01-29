@@ -94,7 +94,7 @@
         <a href="/" class="logo">{{ site_settings.site_name|default:"STORE." }}</a>
         <nav>
             {% for cat in categories %}
-                <a href="#" class="nav-link" style="margin-right: 15px;">{{ cat.name }}</a>
+                <a href="{% url 'store:category_detail' cat.slug %}" class="nav-link" style="margin-right: 15px;">{{ cat.name }}</a>
             {% endfor %}
         </nav>
         <nav>

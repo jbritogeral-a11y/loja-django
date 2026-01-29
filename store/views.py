@@ -6,17 +6,38 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.db.models import Q
 
 
-def product_list(request):
+def product_list(request, category_slug=None):
+    category = None
     products = Product.objects.filter(is_active=True)
-    categories = Category.objects.all()
-    return render(request, 'store/product_list.html', {'products': products, 'categories': categories})
+    
+    # Filtro por Categoria
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=category)
+
+    # Pesquisa (Search)
+    query = request.GET.get('q')
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+    # Produtos em Destaque (apenas na Homepage sem filtros)
+    featured_products = []
+    if not category_slug and not query:
+        featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
+
+    return render(request, 'store/product_list.html', {
+        'products': products, 
+        'category': category,
+        'featured_products': featured_products,
+        'query': query
+    })
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    categories = Category.objects.all()
-    return render(request, 'store/product_detail.html', {'product': product, 'categories': categories})
+    return render(request, 'store/product_detail.html', {'product': product})
 
 def cart_add(request, product_id):
     cart = Cart(request)

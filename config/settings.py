@@ -29,7 +29,8 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
 
 # Necessário para formulários funcionarem em HTTPS (Google Cloud Run)
-CSRF_TRUSTED_ORIGINS = ['https://*.pythonanywhere.com']
+# Adicione aqui o seu subdomínio exato quando o souber (ex: 'https://loja.meusite.com')
+CSRF_TRUSTED_ORIGINS = ['https://*.pythonanywhere.com', 'https://*.ovh.net', 'https://*.ovh.com']
 
 
 # Application definition
