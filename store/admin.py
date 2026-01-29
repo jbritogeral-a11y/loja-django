@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
+from decimal import Decimal
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
@@ -203,13 +204,13 @@ def admin_dashboard(request, extra_context=None):
     now = timezone.now()
     orders = Order.objects.filter(paid=True)
     
-    sales_day = orders.filter(created_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or 0
+    sales_day = orders.filter(created_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
     
     start_week = now - timedelta(days=now.weekday())
-    sales_week = orders.filter(created_at__gte=start_week).aggregate(total=Sum('total_price'))['total'] or 0
+    sales_week = orders.filter(created_at__gte=start_week).aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
     
     start_month = now.replace(day=1)
-    sales_month = orders.filter(created_at__gte=start_month).aggregate(total=Sum('total_price'))['total'] or 0
+    sales_month = orders.filter(created_at__gte=start_month).aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
 
     # 3. Número de Clientes (Excluindo Staff)
     total_clients = Client.objects.filter(is_staff=False).count()
