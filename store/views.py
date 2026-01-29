@@ -126,6 +126,17 @@ def checkout(request):
 
             return render(request, 'store/order_success.html', {'order': order})
     else:
-        form = OrderCreateForm()
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data['full_name'] = f"{request.user.first_name} {request.user.last_name}".strip()
+            initial_data['email'] = request.user.email
+            
+            # Tenta preencher morada com base na última encomenda
+            last_order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+            if last_order:
+                initial_data['address'] = last_order.address
+                initial_data['city'] = last_order.city
+        
+        form = OrderCreateForm(initial=initial_data)
 
     return render(request, 'store/checkout.html', {'form': form})
