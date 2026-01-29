@@ -40,9 +40,9 @@
                 {% for item in cart %}
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
                     <div>
-                        <strong>{{ item.quantity }}x</strong> {{ item.product.name }} {% if item.variant %}({{ item.variant.name }}){% endif %}
+                        <strong>{{ item.quantity }}x</strong> {{ item.name }} {% if item.variant_name %}({{ item.variant_name }}){% endif %}
                     </div>
-                    <div>{{ item.get_total_price }}€</div>
+                    <div>{{ item.total_price }}€</div>
                 </div>
                 {% endfor %}
             </div>

@@ -51,12 +51,29 @@ def checkout(request):
             order.save()
             
             for item in cart:
+                # Correção para KeyError: 'product'
+                # Se o item não tiver o objeto produto, vamos buscá-lo à BD usando a key (ID)
+                product = item.get('product')
+                if not product:
+                    # Tenta extrair o ID do produto da 'key' (ex: "1" ou "1-2")
+                    product_id = str(item.get('key', '')).split('-')[0]
+                    if product_id:
+                        product = Product.objects.get(id=product_id)
+                
+                # Tratamento da variante (se for apenas um ID, buscar o objeto)
+                variant = item.get('variant')
+                if variant and not isinstance(variant, ProductVariant):
+                    try:
+                        variant = ProductVariant.objects.get(id=variant)
+                    except ProductVariant.DoesNotExist:
+                        variant = None
+
                 OrderItem.objects.create(
                     order=order,
-                    product=item['product'],
+                    product=product,
                     price=item['price'],
                     quantity=item['quantity'],
-                    variant=item.get('variant')
+                    variant=variant
                 )
             
             cart.clear()
