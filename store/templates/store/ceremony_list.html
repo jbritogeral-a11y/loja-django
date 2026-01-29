@@ -1,0 +1,33 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">Próximas Cerimónias</h1>
+
+{% if ceremonies %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        {% for ceremony in ceremonies %}
+        <div style="background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+            <div style="height: 200px; overflow: hidden;">
+                {% if ceremony.image %}
+                <img src="{{ ceremony.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+            </div>
+            <div style="padding: 1.5rem;">
+                <div style="font-size: 0.9rem; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">
+                    {{ ceremony.event_date|date:"d F Y, H:i" }}
+                </div>
+                <h3 style="margin: 0 0 1rem 0;">{{ ceremony.name }}</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ ceremony.description }}
+                </p>
+                <a href="{% url 'store:ceremony_detail' ceremony.id %}" class="btn-primary">Ver Detalhes e Inscrever</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 4rem; background: white; border-radius: var(--radius);">
+        <p style="color: var(--text-muted);">Não existem cerimónias agendadas para breve.</p>
+    </div>
+{% endif %}
+{% endblock %}

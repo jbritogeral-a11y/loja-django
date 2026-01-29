@@ -1,0 +1,15 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+    <h1 style="margin-bottom: 1rem;">Inscrição Confirmada!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem;">
+        A sua inscrição na cerimónia <strong>{{ ceremony.name }}</strong> foi registada com sucesso.
+    </p>
+    
+    <a href="{% url 'store:ceremony_list' %}" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem;">
+        Voltar às Cerimónias
+    </a>
+</div>
+{% endblock %}
