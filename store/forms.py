@@ -6,17 +6,21 @@ from django.contrib.auth.forms import UserCreationForm
 class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['full_name', 'email', 'address', 'city']
+        fields = ['full_name', 'email', 'address', 'city', 'shipping_method', 'payment_method']
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome Completo'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Morada Completa', 'rows': 3}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cidade'}),
+            'shipping_method': forms.Select(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
             'full_name': 'Nome',
             'address': 'Morada',
             'city': 'Cidade',
+            'shipping_method': 'Método de Envio',
+            'payment_method': 'Método de Pagamento',
         }
 
 class UserUpdateForm(forms.ModelForm):

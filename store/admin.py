@@ -43,21 +43,21 @@ class OrderItemInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
-class ProfileInline(admin.StackedInline):
+class ProfileInline(admin.TabularInline):
     model = Profile
     can_delete = False
-    verbose_name_plural = 'Dados Pessoais (Morada e Contactos)'
+    verbose_name_plural = 'Dados Pessoais'
     min_num = 1
     # Reduz o tamanho da caixa de texto da morada para ficar mais elegante
     formfield_overrides = {
-        models.TextField: {'widget': forms.Textarea(attrs={'rows': 3, 'style': 'width: 400px;'})},
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 2, 'style': 'width: 350px;'})},
     }
 
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
     model = Order
-    fields = ['id', 'created_at', 'status', 'total_price', 'paid', 'view_details']
-    readonly_fields = ['id', 'created_at', 'view_details']
+    fields = ['display_id', 'created_at', 'status', 'total_price', 'paid', 'view_details']
+    readonly_fields = ['display_id', 'created_at', 'view_details']
     extra = 0
     can_delete = False
     show_change_link = False
@@ -66,9 +66,13 @@ class OrderInlineUser(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def display_id(self, obj):
+        return format_html('<span style="font-size: 1.3rem; font-weight: bold;">#{}</span>', obj.id)
+    display_id.short_description = "Encomenda"
+
     def view_details(self, obj):
         url = reverse("admin:store_order_change", args=[obj.id])
-        return format_html('<a href="{}" style="display: inline-block; background-color: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 12px; text-transform: uppercase;">VER DETALHES</a>', url)
+        return format_html('<a href="{}" style="display: inline-block; background-color: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 13px; text-transform: uppercase;">VER DETALHES</a>', url)
     view_details.short_description = "Ações"
 
 # --- GESTÃO DE CLIENTES (APENAS CLIENTES) ---

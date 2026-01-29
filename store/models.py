@@ -122,10 +122,16 @@ class PaymentMethod(models.Model):
     name = models.CharField(max_length=100, verbose_name="Método de Pagamento")
     is_active = models.BooleanField(default=True, verbose_name="Ativo?")
 
+    def __str__(self):
+        return self.name
+
 class ShippingMethod(models.Model):
     name = models.CharField(max_length=100, verbose_name="Método de Envio")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Custo")
     is_active = models.BooleanField(default=True, verbose_name="Ativo?")
+
+    def __str__(self):
+        return f"{self.name} (+{self.price}€)"
 
 class Client(User):
     class Meta:
