@@ -4,11 +4,13 @@
 
 <!-- Banner (Apenas na Homepage sem pesquisa) -->
 {% if not category and not query and site_settings.banner_image %}
-<div style="position: relative; margin-bottom: 3rem; border-radius: var(--radius); overflow: hidden; height: 400px;">
-    <img src="{{ site_settings.banner_image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 1rem;">
-        <h1 style="font-size: 3rem; margin-bottom: 1rem;">{{ site_settings.banner_title }}</h1>
-        <p style="font-size: 1.2rem; max-width: 600px;">{{ site_settings.banner_text }}</p>
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 style="font-size: 2.5rem; margin: 0 0 1rem 0; line-height: 1.2;">{{ site_settings.banner_title }}</h1>
+        <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">{{ site_settings.banner_text }}</p>
+        <a href="#catalogo" class="btn-primary" style="width: auto; padding: 0.8rem 2rem;">Ver Coleção</a>
+    </div>
+    <div class="hero-image" style="background-image: url('{{ site_settings.banner_image.url }}');">
     </div>
 </div>
 {% endif %}
@@ -45,7 +47,7 @@
         </div>
     {% endfor %}
 </div>
-<h3 style="margin-bottom: 1.5rem;">Catálogo Completo</h3>
+<h3 id="catalogo" style="margin-bottom: 1.5rem;">Catálogo Completo</h3>
 {% endif %}
 
 <!-- Grelha de Produtos -->
@@ -69,4 +71,46 @@
 {% else %}
     <p style="text-align: center; color: var(--text-muted); padding: 3rem;">Nenhum produto encontrado.</p>
 {% endif %}
+
+<style>
+    .hero-section {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr; /* Texto ocupa menos espaço que a imagem */
+        gap: 2rem;
+        margin-bottom: 4rem;
+        align-items: center;
+        min-height: 400px;
+    }
+    
+    .hero-content {
+        background: white;
+        padding: 3rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        z-index: 10;
+    }
+
+    .hero-image {
+        width: 100%;
+        height: 100%;
+        min-height: 400px;
+        background-size: cover;
+        background-position: center;
+        border-radius: var(--radius);
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            grid-template-columns: 1fr;
+        }
+        .hero-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        .hero-image {
+            height: 300px;
+            min-height: auto;
+        }
+    }
+</style>
 {% endblock %}

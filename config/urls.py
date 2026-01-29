@@ -26,3 +26,8 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Personalização do Admin
+admin.site.site_header = "Administração da Loja"
+admin.site.site_title = "Portal de Gestão"
+admin.site.index_title = "Bem-vindo ao Painel de Controlo"
