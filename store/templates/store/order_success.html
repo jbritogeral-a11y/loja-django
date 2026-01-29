@@ -1,0 +1,16 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+    <h1 style="margin-bottom: 1rem;">Obrigado pela sua encomenda!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 2rem;">
+        A sua encomenda <strong>#{{ order.id }}</strong> foi registada com sucesso.
+        Enviámos um email de confirmação para <strong>{{ order.email }}</strong>.
+    </p>
+    
+    <a href="/" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem;">
+        Voltar à Loja
+    </a>
+</div>
+{% endblock %}

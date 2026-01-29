@@ -128,6 +128,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Configuração de Email (Para desenvolvimento: imprime na consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Para produção (Gmail), descomente e preencha estas linhas:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'o_seu_email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'a_sua_senha_de_aplicacao'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
