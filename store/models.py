@@ -77,6 +77,8 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_method = models.ForeignKey('PaymentMethod', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Método de Pagamento")
+    shipping_method = models.ForeignKey('ShippingMethod', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Método de Envio")
 
     class Meta:
         ordering = ('-created_at',)
@@ -136,3 +138,12 @@ class Administrator(User):
         proxy = True
         verbose_name = "Administrador"
         verbose_name_plural = "Administradores"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone = models.CharField(max_length=20, verbose_name="Telefone")
+    address = models.TextField(verbose_name="Morada")
+    postal_code = models.CharField(max_length=20, verbose_name="Código Postal")
+
+    def __str__(self):
+        return f"Perfil de {self.user.username}"

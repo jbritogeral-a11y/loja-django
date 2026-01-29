@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -41,6 +41,12 @@ class OrderItemInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = 'Dados Pessoais (Morada e Contactos)'
+    min_num = 1 # Obriga a preencher estes dados ao criar cliente
+
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
     model = Order
@@ -48,6 +54,7 @@ class OrderInlineUser(admin.TabularInline):
     readonly_fields = ['created_at']
     extra = 0
     can_delete = False
+    show_change_link = True # Adiciona botão para ver detalhes da encomenda ("Fatura")
     
     def has_add_permission(self, request, obj=None):
         return False
@@ -55,7 +62,7 @@ class OrderInlineUser(admin.TabularInline):
 # --- GESTÃO DE CLIENTES (APENAS CLIENTES) ---
 @admin.register(Client)
 class ClientAdmin(BaseUserAdmin):
-    inlines = [OrderInlineUser]
+    inlines = [ProfileInline, OrderInlineUser]
     list_display = ('username', 'email', 'first_name', 'last_name', 'date_joined')
     list_filter = ('date_joined',)
     search_fields = ('username', 'email', 'first_name', 'last_name')
@@ -71,11 +78,18 @@ class ClientAdmin(BaseUserAdmin):
         obj.is_superuser = False
         super().save_model(request, obj, form, change)
 
+    # Torna Nome e Email obrigatórios no Admin
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['first_name'].required = True
+        form.base_fields['last_name'].required = True
+        form.base_fields['email'].required = True
+        return form
+
     # 3. Esconde todos os campos de permissões do formulário
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Informação Pessoal', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Datas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         (None, {'fields': ('first_name', 'last_name')}),
@@ -103,7 +117,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     
     # Torna os campos informativos apenas de leitura
-    readonly_fields = ['user', 'full_name', 'email', 'address', 'city', 'total_price', 'created_at']
+    readonly_fields = ['user', 'full_name', 'email', 'address', 'city', 'payment_method', 'shipping_method', 'total_price', 'created_at']
     
     # Apenas permitimos editar o Status e o Pagamento para processamento
     # Se quiser bloquear TUDO, adicione 'status' e 'paid' à lista readonly_fields acima.
