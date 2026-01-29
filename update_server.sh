@@ -10,7 +10,6 @@ pip install -r requirements.txt
 
 # 3. Atualizar Base de Dados e Estáticos
 echo "--> A atualizar Base de Dados e Ficheiros Estaticos..."
-python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --no-input
 
