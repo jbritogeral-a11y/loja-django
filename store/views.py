@@ -55,17 +55,22 @@ def checkout(request):
                 # Se o item não tiver o objeto produto, vamos buscá-lo à BD usando a key (ID)
                 product = item.get('product')
                 if not product:
-                    # Tenta extrair o ID do produto da 'key' (ex: "1" ou "1-2")
-                    product_id = str(item.get('key', '')).split('-')[0]
-                    if product_id:
+                    # Tenta extrair o ID do produto da 'key' (ex: "1", "1-2" ou "1_no_variant")
+                    raw_key = str(item.get('key', ''))
+                    product_id = raw_key.replace('_', '-').split('-')[0]
+                    
+                    if product_id and product_id.isdigit():
                         product = Product.objects.get(id=product_id)
                 
                 # Tratamento da variante (se for apenas um ID, buscar o objeto)
                 variant = item.get('variant')
                 if variant and not isinstance(variant, ProductVariant):
-                    try:
-                        variant = ProductVariant.objects.get(id=variant)
-                    except ProductVariant.DoesNotExist:
+                    if str(variant).isdigit():
+                        try:
+                            variant = ProductVariant.objects.get(id=variant)
+                        except ProductVariant.DoesNotExist:
+                            variant = None
+                    else:
                         variant = None
 
                 OrderItem.objects.create(
