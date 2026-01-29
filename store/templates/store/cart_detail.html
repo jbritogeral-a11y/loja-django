@@ -32,7 +32,7 @@
                 <span>Total</span>
                 <span>{{ cart.get_total_price }} €</span>
             </div>
-            <button class="btn-primary">Finalizar Compra</button>
+            <a href="{% url 'store:checkout' %}" class="btn-primary">Finalizar Compra</a>
             <a href="/" style="display: block; text-align: center; margin-top: 1rem; font-size: 0.9rem; text-decoration: underline;">Continuar a comprar</a>
         </div>
     </div>
