@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony
+from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony, SiteSettings
 from .cart import Cart
-from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm
+from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm, ContactForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -188,3 +188,24 @@ def ceremony_detail(request, ceremony_id):
         form = CeremonyRegistrationForm()
         
     return render(request, 'store/ceremony_detail.html', {'ceremony': ceremony, 'form': form})
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Tenta obter o email de destino das configurações, senão usa o do settings
+            site_settings = SiteSettings.objects.first()
+            dest_email = site_settings.contact_email if site_settings and site_settings.contact_email else settings.EMAIL_HOST_USER
+            
+            subject = f"Contacto do Site: {form.cleaned_data['subject']}"
+            message = f"De: {form.cleaned_data['name']} <{form.cleaned_data['email']}>\n\n{form.cleaned_data['message']}"
+            
+            try:
+                send_mail(subject, message, settings.EMAIL_HOST_USER, [dest_email], fail_silently=True)
+            except:
+                pass # Em produção deve-se logar o erro
+                
+            return render(request, 'store/contact_success.html')
+    else:
+        form = ContactForm()
+    return render(request, 'store/contact.html', {'form': form})

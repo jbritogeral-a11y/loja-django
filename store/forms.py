@@ -55,3 +55,9 @@ class CeremonyRegistrationForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'O seu email'}),
             'payment_preference': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: MBWAY, Transferência...'}),
         }
+
+class ContactForm(forms.Form):
+    name = forms.CharField(label='Nome', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'O seu nome'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'O seu email'}))
+    subject = forms.CharField(label='Assunto', max_length=200, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto'}))
+    message = forms.CharField(label='Mensagem', widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'A sua mensagem'}))

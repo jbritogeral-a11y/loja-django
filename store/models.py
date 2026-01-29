@@ -104,6 +104,11 @@ class SiteSettings(models.Model):
     banner_text = models.TextField(blank=True, verbose_name="Texto do Banner")
     primary_color = models.CharField(max_length=7, default="#000000", verbose_name="Cor Principal (Hex)", help_text="Ex: #FF0000")
     contact_email = models.EmailField(blank=True, verbose_name="Email de Contacto")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="Telefone")
+    address = models.TextField(blank=True, verbose_name="Morada")
+    facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
+    instagram_url = models.URLField(blank=True, verbose_name="Instagram URL")
+    twitter_url = models.URLField(blank=True, verbose_name="Twitter/X URL")
     
     def save(self, *args, **kwargs):
         # Garante que só existe uma configuração (Singleton)
