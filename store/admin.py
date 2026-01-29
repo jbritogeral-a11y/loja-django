@@ -56,15 +56,20 @@ class ProfileInline(admin.StackedInline):
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
     model = Order
-    fields = ['id', 'created_at', 'status', 'total_price', 'paid']
-    readonly_fields = ['created_at']
+    fields = ['id', 'created_at', 'status', 'total_price', 'paid', 'view_details']
+    readonly_fields = ['id', 'created_at', 'view_details']
     extra = 0
     can_delete = False
-    show_change_link = True # Adiciona botão para ver detalhes da encomenda ("Fatura")
+    show_change_link = False
     verbose_name_plural = "Histórico de Encomendas"
     
     def has_add_permission(self, request, obj=None):
         return False
+
+    def view_details(self, obj):
+        url = reverse("admin:store_order_change", args=[obj.id])
+        return format_html('<a href="{}" style="display: inline-block; background-color: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; font-size: 12px; text-transform: uppercase;">VER DETALHES</a>', url)
+    view_details.short_description = "Ações"
 
 # --- GESTÃO DE CLIENTES (APENAS CLIENTES) ---
 @admin.register(Client)
