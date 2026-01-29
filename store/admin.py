@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -28,6 +28,13 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     raw_id_fields = ['product']
+    extra = 0
+    can_delete = False
+    readonly_fields = ['product', 'price', 'quantity']
+
+    # Impede adicionar novos itens à encomenda
+    def has_add_permission(self, request, obj=None):
+        return False
 
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
@@ -36,12 +43,15 @@ class OrderInlineUser(admin.TabularInline):
     readonly_fields = ['created_at']
     extra = 0
     can_delete = False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
 
-# Atualizar o Admin de Utilizadores
-admin.site.unregister(User)
-@admin.register(User)
-class UserAdmin(BaseUserAdmin):
+# Gestão de Clientes (Aparece no menu da Loja)
+@admin.register(Client)
+class ClientAdmin(BaseUserAdmin):
     inlines = [OrderInlineUser]
+    list_display = ['username', 'email', 'first_name', 'last_name', 'is_active', 'date_joined']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -49,6 +59,12 @@ class OrderAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'full_name'] # Permite clicar no ID ou no Nome para ver detalhes
     list_filter = ['paid', 'status', 'created_at']
     inlines = [OrderItemInline]
+    
+    # Torna os campos informativos apenas de leitura
+    readonly_fields = ['user', 'full_name', 'email', 'address', 'city', 'total_price', 'created_at']
+    
+    # Apenas permitimos editar o Status e o Pagamento para processamento
+    # Se quiser bloquear TUDO, adicione 'status' e 'paid' à lista readonly_fields acima.
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):

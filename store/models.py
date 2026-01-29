@@ -124,3 +124,9 @@ class ShippingMethod(models.Model):
     name = models.CharField(max_length=100, verbose_name="Método de Envio")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Custo")
     is_active = models.BooleanField(default=True, verbose_name="Ativo?")
+
+class Client(User):
+    class Meta:
+        proxy = True
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
