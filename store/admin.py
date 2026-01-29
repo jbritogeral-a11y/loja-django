@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django import forms
+from django.db import models
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
@@ -46,7 +48,10 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Dados Pessoais (Morada e Contactos)'
     min_num = 1
-    classes = ['collapse'] # Permite esconder/mostrar para poupar espaço se necessário
+    # Reduz o tamanho da caixa de texto da morada para ficar mais elegante
+    formfield_overrides = {
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 2, 'style': 'width: 100%; max-width: 600px;'})},
+    }
 
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
@@ -127,7 +132,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': (('total_price', 'payment_method'), 'shipping_method')
         }),
         ('Dados do Cliente (Cópia no momento da compra)', {
-            'classes': ('collapse',), # Pode ser escondido para focar nos artigos
+            'classes': ('collapse',),
             'fields': ('full_name', 'email', ('address', 'city'), 'user')
         }),
     )
