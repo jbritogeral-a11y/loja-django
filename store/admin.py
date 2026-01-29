@@ -45,7 +45,8 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = 'Dados Pessoais (Morada e Contactos)'
-    min_num = 1 # Obriga a preencher estes dados ao criar cliente
+    min_num = 1
+    classes = ['collapse'] # Permite esconder/mostrar para poupar espaço se necessário
 
 # Configuração para ver Encomendas dentro do Cliente (User)
 class OrderInlineUser(admin.TabularInline):
@@ -55,6 +56,7 @@ class OrderInlineUser(admin.TabularInline):
     extra = 0
     can_delete = False
     show_change_link = True # Adiciona botão para ver detalhes da encomenda ("Fatura")
+    verbose_name_plural = "Histórico de Encomendas"
     
     def has_add_permission(self, request, obj=None):
         return False
@@ -89,7 +91,7 @@ class ClientAdmin(BaseUserAdmin):
     # 3. Esconde todos os campos de permissões do formulário
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Informação Pessoal', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Identificação', {'fields': (('first_name', 'last_name'), 'email')}), # Agrupa Nome e Email na mesma linha
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         (None, {'fields': ('first_name', 'last_name')}),
@@ -116,11 +118,22 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['id', 'full_name', 'email', 'user__username'] # Pesquisa por ID, Nome, Email
     inlines = [OrderItemInline]
     
-    # Torna os campos informativos apenas de leitura
-    readonly_fields = ['user', 'full_name', 'email', 'address', 'city', 'payment_method', 'shipping_method', 'total_price', 'created_at']
+    # Organização visual da Ficha de Encomenda
+    fieldsets = (
+        ('Estado da Encomenda', {
+            'fields': (('status', 'paid'), 'created_at')
+        }),
+        ('Detalhes Financeiros', {
+            'fields': (('total_price', 'payment_method'), 'shipping_method')
+        }),
+        ('Dados do Cliente (Cópia no momento da compra)', {
+            'classes': ('collapse',), # Pode ser escondido para focar nos artigos
+            'fields': ('full_name', 'email', ('address', 'city'), 'user')
+        }),
+    )
     
-    # Apenas permitimos editar o Status e o Pagamento para processamento
-    # Se quiser bloquear TUDO, adicione 'status' e 'paid' à lista readonly_fields acima.
+    # Campos que não devem ser editados para manter integridade histórica
+    readonly_fields = ['user', 'full_name', 'email', 'address', 'city', 'payment_method', 'shipping_method', 'total_price', 'created_at']
 
     def link_to_client(self, obj):
         if obj.user:
