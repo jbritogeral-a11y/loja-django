@@ -1,0 +1,45 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">O seu Carrinho</h1>
+
+{% if cart|length > 0 %}
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+        <!-- Lista de Itens -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% for item in cart %}
+            <div style="display: flex; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+                <div style="width: 100px; height: 100px; background: #f5f5f5; border-radius: 4px; overflow: hidden;">
+                    {% if item.image %}<img src="{{ item.image }}" style="width: 100%; height: 100%; object-fit: cover;">{% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 0.5rem 0;">{{ item.name }}</h3>
+                    {% if item.variant_name %}<p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Opção: {{ item.variant_name }}</p>{% endif %}
+                    <p style="margin-top: 0.5rem;">{{ item.quantity }} x {{ item.price }} €</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="font-weight: 600;">{{ item.total_price }} €</p>
+                    <a href="{% url 'store:cart_remove' item.key %}" style="color: red; font-size: 0.8rem; text-decoration: underline;">Remover</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Resumo -->
+        <div style="background: var(--gray-light); padding: 2rem; border-radius: var(--radius); height: fit-content;">
+            <h2 style="margin-top: 0;">Resumo</h2>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 600;">
+                <span>Total</span>
+                <span>{{ cart.get_total_price }} €</span>
+            </div>
+            <button class="btn-primary">Finalizar Compra</button>
+            <a href="/" style="display: block; text-align: center; margin-top: 1rem; font-size: 0.9rem; text-decoration: underline;">Continuar a comprar</a>
+        </div>
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 4rem;">
+        <p>O seu carrinho está vazio.</p>
+        <a href="/" class="btn-primary" style="width: auto; display: inline-block; margin-top: 1rem;">Ver Produtos</a>
+    </div>
+{% endif %}
+{% endblock %}

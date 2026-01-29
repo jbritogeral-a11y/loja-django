@@ -1,0 +1,43 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+    <!-- Banner Moderno -->
+    {% if site_settings.banner_image %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; margin-bottom: 4rem; background: var(--gray-light); border-radius: var(--radius); overflow: hidden;">
+        <div style="padding: 3rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; line-height: 1.1;">{{ site_settings.banner_title }}</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">{{ site_settings.banner_text }}</p>
+            <a href="#produtos" class="btn-primary" style="width: auto; padding: 1rem 2rem;">Ver Coleção</a>
+        </div>
+        <div style="height: 400px;">
+            <img src="{{ site_settings.banner_image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+    </div>
+    <style>
+        @media(max-width: 768px) { div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; } }
+    </style>
+    {% endif %}
+
+    <div id="produtos"></div>
+    <!-- Vitrine de Produtos (Loja) -->
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                <a href="{% url 'store:product_detail' product.slug %}">
+                    <div class="product-image-container">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="product-info">
+                    <h3 class="product-name"><a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a></h3>
+                    <span class="product-price">{{ product.price }} €</span>
+                    <a href="{% url 'store:product_detail' product.slug %}" class="btn-primary">Ver Detalhes</a>
+                </div>
+            </div>
+        {% empty %}
+            <p>Ainda não existem produtos na loja.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
