@@ -42,6 +42,10 @@ def cart_detail(request):
 
 @login_required
 def profile(request):
+    # Se for Administrador, redireciona para o Admin em vez de mostrar perfil de cliente
+    if request.user.is_staff:
+        return redirect('/admin/')
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
         if user_form.is_valid():
@@ -74,7 +78,8 @@ def checkout(request):
         if form.is_valid():
             order = form.save(commit=False)
             # Associar encomenda ao cliente logado
-            if request.user.is_authenticated:
+            # Apenas associa se NÃO for administrador (staff)
+            if request.user.is_authenticated and not request.user.is_staff:
                 order.user = request.user
             order.total_price = cart.get_total_price()
             order.save()
@@ -127,7 +132,8 @@ def checkout(request):
             return render(request, 'store/order_success.html', {'order': order})
     else:
         initial_data = {}
-        if request.user.is_authenticated:
+        # Apenas preenche dados se NÃO for administrador
+        if request.user.is_authenticated and not request.user.is_staff:
             initial_data['full_name'] = f"{request.user.first_name} {request.user.last_name}".strip()
             initial_data['email'] = request.user.email
             

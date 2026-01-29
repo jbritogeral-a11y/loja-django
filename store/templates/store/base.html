@@ -98,8 +98,10 @@
             {% endfor %}
         </nav>
         <nav>
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and not user.is_staff %}
                 <a href="{% url 'store:profile' %}" class="nav-link" style="margin-right: 15px;">Minha Conta</a>
+            {% elif user.is_staff %}
+                <a href="/admin/" class="nav-link" style="margin-right: 15px; color: red; font-weight: bold;">Painel Admin</a>
             {% else %}
                 <a href="{% url 'store:login' %}" class="nav-link" style="margin-right: 15px;">Login</a>
             {% endif %}
