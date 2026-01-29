@@ -50,7 +50,7 @@ class ProfileInline(admin.StackedInline):
     min_num = 1
     # Reduz o tamanho da caixa de texto da morada para ficar mais elegante
     formfield_overrides = {
-        models.TextField: {'widget': forms.Textarea(attrs={'rows': 2, 'style': 'width: 100%; max-width: 600px;'})},
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 3, 'style': 'width: 400px;'})},
     }
 
 # Configuração para ver Encomendas dentro do Cliente (User)
@@ -96,7 +96,7 @@ class ClientAdmin(BaseUserAdmin):
     # 3. Esconde todos os campos de permissões do formulário
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Identificação', {'fields': (('first_name', 'last_name'), 'email')}), # Agrupa Nome e Email na mesma linha
+        ('Informação Pessoal', {'fields': ('first_name', 'last_name', 'email')}),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         (None, {'fields': ('first_name', 'last_name')}),
