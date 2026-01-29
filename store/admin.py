@@ -69,6 +69,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'full_name', 'link_to_client', 'get_items_summary', 'total_price', 'paid', 'status', 'created_at']
     list_display_links = ['id', 'full_name'] 
     list_filter = ['paid', 'status', 'created_at']
+    search_fields = ['id', 'full_name', 'email', 'user__username'] # Pesquisa por ID, Nome, Email
     inlines = [OrderItemInline]
     
     # Torna os campos informativos apenas de leitura

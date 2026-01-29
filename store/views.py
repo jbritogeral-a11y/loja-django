@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Product, Category, ProductVariant, Order, OrderItem
 from .cart import Cart
-from .forms import OrderCreateForm, UserUpdateForm
+from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 
 
 def product_list(request):
@@ -52,6 +53,17 @@ def profile(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'store/profile.html', {'orders': orders, 'user_form': user_form})
 
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user) # Faz login automático após registo
+            return redirect('store:product_list')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'store/register.html', {'form': form})
+
 def checkout(request):
     cart = Cart(request)
     if not cart:
@@ -71,6 +83,11 @@ def checkout(request):
                 # 1. Obter Produto (usando ID direto do carrinho - muito mais seguro)
                 product_id = item.get('product_id')
                 product = get_object_or_404(Product, id=product_id)
+                
+                # --- GESTÃO DE STOCK ---
+                if product.stock >= item['quantity']:
+                    product.stock -= item['quantity']
+                    product.save()
                 
                 # 2. Obter Variante (opcional, apenas para referência futura)
                 variant_id = item.get('variant_id')
