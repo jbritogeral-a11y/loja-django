@@ -170,7 +170,7 @@
                 {% for cat in categories %}
                     <a href="{% url 'store:category_detail' cat.slug %}" class="nav-link" style="margin-right: 15px;">{{ cat.name }}</a>
                 {% endfor %}
-                <a href="{% url 'store:therapy_list' %}" class="nav-link" style="margin-right: 15px; font-weight: 600; color: var(--accent);">Terapias</a>
+                <a href="{% url 'store:therapy_list' %}" class="nav-link" style="margin-right: 15px; font-weight: 600;">Terapias</a>
                 <a href="{% url 'store:ceremony_list' %}" class="nav-link" style="margin-right: 15px; font-weight: 600; color: var(--accent);">Cerimónias</a>
             </nav>
             <nav>
