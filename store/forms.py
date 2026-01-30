@@ -78,9 +78,15 @@ class AppointmentForm(forms.ModelForm):
         help_text="Selecione a data e hora para a sessão."
     )
 
+    payment_method = forms.ModelChoiceField(
+        queryset=PaymentMethod.objects.filter(is_active=True),
+        label="Método de Pagamento",
+        empty_label="Selecione um método"
+    )
+
     class Meta:
         model = Appointment
-        fields = ['start_time']
+        fields = ['start_time', 'payment_method']
 
     def clean_start_time(self):
         start_time = self.cleaned_data['start_time']

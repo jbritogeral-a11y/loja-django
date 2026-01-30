@@ -128,6 +128,10 @@ class PaymentMethod(models.Model):
     name = models.CharField(max_length=100, verbose_name="Método de Pagamento")
     is_active = models.BooleanField(default=True, verbose_name="Ativo?")
 
+    class Meta:
+        verbose_name = "Método de Pagamento"
+        verbose_name_plural = "Métodos de Pagamento"
+
     def __str__(self):
         return self.name
 
@@ -135,6 +139,10 @@ class ShippingMethod(models.Model):
     name = models.CharField(max_length=100, verbose_name="Método de Envio")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Custo")
     is_active = models.BooleanField(default=True, verbose_name="Ativo?")
+
+    class Meta:
+        verbose_name = "Método de Envio"
+        verbose_name_plural = "Métodos de Envio"
 
     def __str__(self):
         return f"{self.name} (+{self.price}€)"
@@ -174,6 +182,10 @@ class Ceremony(models.Model):
             return self.registrations.count() >= self.max_participants
         return False
 
+    class Meta:
+        verbose_name = "Cerimónia"
+        verbose_name_plural = "Cerimónias"
+
     def __str__(self):
         return self.name
 
@@ -185,6 +197,10 @@ class CeremonyRegistration(models.Model):
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, verbose_name="Método de Pagamento")
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='ceremony_registrations')
+
+    class Meta:
+        verbose_name = "Inscrição em Cerimónia"
+        verbose_name_plural = "Inscrições em Cerimónias"
 
     def __str__(self):
         return f"{self.full_name} - {self.ceremony.name}"
@@ -216,6 +232,10 @@ class Therapy(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    class Meta:
+        verbose_name = "Terapia"
+        verbose_name_plural = "Terapias"
+
     def __str__(self):
         return self.name
 
@@ -226,6 +246,11 @@ class Appointment(models.Model):
     end_time = models.DateTimeField(verbose_name="Data e Hora de Fim")
     created_at = models.DateTimeField(auto_now_add=True)
     confirmed = models.BooleanField(default=False, verbose_name="Confirmado?")
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, verbose_name="Método de Pagamento")
+
+    class Meta:
+        verbose_name = "Marcação"
+        verbose_name_plural = "Marcações"
 
     def __str__(self):
         return f"{self.therapy.name} - {self.user.username} - {self.start_time}"

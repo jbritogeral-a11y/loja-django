@@ -311,13 +311,13 @@ def therapy_detail(request, slug):
             if overlap or ceremony_overlap:
                 error = "Já existe um agendamento ou cerimónia nesse horário. Por favor escolha outro."
             else:
-                Appointment.objects.create(
-                    user=request.user,
-                    therapy=therapy,
-                    start_time=start_time,
-                    end_time=end_time
-                )
-                return render(request, 'store/therapy_success.html', {'therapy': therapy, **get_common_context()})
+                appointment = form.save(commit=False)
+                appointment.user = request.user
+                appointment.therapy = therapy
+                appointment.end_time = end_time
+                # O payment_method já vem preenchido do formulário
+                appointment.save()
+                return render(request, 'store/therapy_success.html', {'therapy': therapy, 'appointment': appointment, **get_common_context()})
     else:
         form = AppointmentForm()
 

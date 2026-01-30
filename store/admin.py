@@ -215,7 +215,7 @@ class TherapyAdmin(admin.ModelAdmin):
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ['therapy', 'user', 'start_time', 'end_time', 'confirmed']
+    list_display = ['therapy', 'user', 'start_time', 'end_time', 'payment_method', 'confirmed']
     list_filter = ['start_time', 'confirmed', 'therapy']
     ordering = ['-start_time']
 

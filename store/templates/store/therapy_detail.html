@@ -38,6 +38,11 @@
                     A duração da sessão é de {{ therapy.duration_minutes }} minutos.
                 </small>
             </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">{{ form.payment_method.label }}</label>
+                {{ form.payment_method }}
+            </div>
             
             <button type="submit" class="btn-primary" style="font-size: 1.1rem;">Confirmar Agendamento</button>
         </form>
@@ -50,6 +55,9 @@
 
 <style>
     input[type="datetime-local"] {
+        width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit;
+    }
+    select {
         width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit;
     }
     @media (max-width: 768px) {
