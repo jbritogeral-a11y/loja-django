@@ -1,0 +1,59 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+    
+    <!-- Detalhes -->
+    <div>
+        {% if therapy.image %}
+        <img src="{{ therapy.image.url }}" style="width: 100%; border-radius: var(--radius); margin-bottom: 1.5rem;">
+        {% endif %}
+        
+        <h1 style="margin-bottom: 0.5rem;">{{ therapy.name }}</h1>
+        <div style="font-size: 1.2rem; color: var(--accent); font-weight: 600; margin-bottom: 1.5rem;">
+            {{ therapy.price }} € <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 400;">/ {{ therapy.duration_minutes }} minutos</span>
+        </div>
+        
+        <div style="line-height: 1.8; color: var(--text-muted);">
+            {{ therapy.description|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Formulário de Agendamento -->
+    <div style="background: white; padding: 2rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); position: sticky; top: 100px;">
+        <h2 style="margin-top: 0; text-align: center;">Agendar Sessão</h2>
+        
+        {% if error %}
+        <div style="background: #fee2e2; color: #b91c1c; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; border: 1px solid #fca5a5; font-size: 0.9rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Escolha a Data e Hora</label>
+                {{ form.start_time }}
+                <small style="display: block; color: var(--text-muted); margin-top: 0.5rem;">
+                    A duração da sessão é de {{ therapy.duration_minutes }} minutos.
+                </small>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="font-size: 1.1rem;">Confirmar Agendamento</button>
+        </form>
+        
+        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 1rem;">
+            O pagamento será solicitado no local ou via referência após confirmação.
+        </p>
+    </div>
+</div>
+
+<style>
+    input[type="datetime-local"] {
+        width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit;
+    }
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    }
+</style>
+{% endblock %}

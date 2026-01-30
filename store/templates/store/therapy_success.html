@@ -1,0 +1,17 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🌿</div>
+    <h1 style="margin-bottom: 1rem;">Agendamento Solicitado!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem;">
+        O seu pedido de agendamento para <strong>{{ therapy.name }}</strong> foi registado.
+        <br>
+        Iremos entrar em contacto brevemente para confirmar a disponibilidade e detalhes do pagamento.
+    </p>
+    
+    <a href="{% url 'store:profile' %}" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem;">
+        Ver Meus Agendamentos
+    </a>
+</div>
+{% endblock %}

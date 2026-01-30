@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <h1>Agenda da Loja</h1>
+    <p>Visualize aqui todas as marcações de Terapias e Cerimónias.</p>
+    
+    <div id='calendar' style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px; min-height: 600px;"></div>
+</div>
+
+<!-- FullCalendar CDN -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      locale: 'pt-pt',
+      buttonText: {
+        today: 'Hoje',
+        month: 'Mês',
+        week: 'Semana',
+        day: 'Dia'
+      },
+      events: '{% url "admin_calendar_events" %}', // Carrega eventos via JSON
+      eventClick: function(info) {
+        if (info.event.url) {
+            window.open(info.event.url, "_blank");
+            info.jsEvent.preventDefault();
+        }
+      }
+    });
+    calendar.render();
+  });
+</script>
+{% endblock %}

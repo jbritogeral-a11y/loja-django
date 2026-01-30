@@ -1,0 +1,35 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">Terapias Holísticas</h1>
+<p style="margin-bottom: 3rem; color: var(--text-muted); max-width: 800px;">
+    Descubra o equilíbrio e a cura através das nossas terapias personalizadas. 
+    Agende a sua sessão de Reiki, Massagem, Limpeza Espiritual e muito mais.
+</p>
+
+{% if therapies %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+        {% for therapy in therapies %}
+        <div style="background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column;">
+            <div style="height: 200px; overflow: hidden;">
+                {% if therapy.image %}
+                <img src="{{ therapy.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+            </div>
+            <div style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column;">
+                <h3 style="margin: 0 0 0.5rem 0;">{{ therapy.name }}</h3>
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    ⏱ {{ therapy.duration_minutes }} min | 💰 {{ therapy.price }} €
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 1.5rem;">
+                    {{ therapy.description }}
+                </p>
+                <a href="{% url 'store:therapy_detail' therapy.slug %}" class="btn-primary" style="margin-top: auto;">Agendar Sessão</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Não existem terapias disponíveis de momento.</p>
+{% endif %}
+{% endblock %}
