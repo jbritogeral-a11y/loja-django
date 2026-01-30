@@ -47,7 +47,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/gallery/')
+    image = models.ImageField(upload_to='products/gallery/', verbose_name="Imagem")
     
     class Meta:
         verbose_name = "Imagem Extra"
@@ -57,6 +57,10 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, verbose_name="Nome (ex: Tamanho XL)")
     price_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Preço Extra")
+
+    class Meta:
+        verbose_name = "Variante de Produto"
+        verbose_name_plural = "Variantes de Produto"
 
     def __str__(self):
         return f"{self.name} (+{self.price_extra}€)"
@@ -91,10 +95,14 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField(default=1)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Produto")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Preço")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="Quantidade")
     
+    class Meta:
+        verbose_name = "Item de Encomenda"
+        verbose_name_plural = "Itens de Encomenda"
+
     def get_cost(self):
         return self.price * self.quantity
 
@@ -164,6 +172,10 @@ class Profile(models.Model):
     phone = models.CharField(max_length=20, verbose_name="Telefone")
     address = models.TextField(verbose_name="Morada")
     postal_code = models.CharField(max_length=20, verbose_name="Código Postal")
+
+    class Meta:
+        verbose_name = "Perfil"
+        verbose_name_plural = "Perfis"
 
     def __str__(self):
         return f"Perfil de {self.user.username}"
