@@ -1,0 +1,57 @@
+import os
+import django
+import random
+
+# Configurar o ambiente Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from store.models import Category, Product, Client
+from django.contrib.auth import get_user_model
+
+def populate():
+    print("--- A INICIAR O SCRIPT DE POPULAÇÃO ---")
+
+    # 1. Criar 2 Produtos por Categoria
+    categories = Category.objects.all()
+    
+    if not categories.exists():
+        print("AVISO: Não existem categorias. Crie algumas no Admin primeiro.")
+    else:
+        print(f"Encontradas {categories.count()} categorias. A criar produtos...")
+        
+        for cat in categories:
+            for i in range(1, 3):
+                product_name = f"Produto {cat.name} {i}"
+                # Verifica se já existe para não duplicar
+                if not Product.objects.filter(name=product_name).exists():
+                    Product.objects.create(
+                        category=cat,
+                        name=product_name,
+                        description=f"Descrição automática para o produto {i} da categoria {cat.name}.",
+                        price=random.randint(10, 100), # Preço aleatório entre 10 e 100
+                        stock=50,
+                        is_active=True,
+                        is_featured=False
+                    )
+                    print(f"Criado: {product_name}")
+                else:
+                    print(f"Saltado (já existe): {product_name}")
+
+    # 2. Criar 10 Clientes
+    print("\n--- A CRIAR 10 CLIENTES ---")
+    password_padrao = "2026,2026"
+    
+    for i in range(1, 11):
+        username = f"cliente_{i}"
+        email = f"cliente{i}@exemplo.com"
+        
+        if not Client.objects.filter(username=username).exists():
+            Client.objects.create_user(username=username, email=email, password=password_padrao, first_name="Cliente", last_name=str(i))
+            # print(f"Criado: {username}") # Comentado para não poluir a consola com 110 linhas
+        
+    print(f"Sucesso! 10 clientes garantidos com a password '{password_padrao}'.")
+    print("--- PROCESSO CONCLUÍDO ---")
+
+if __name__ == '__main__':
+    populate()
