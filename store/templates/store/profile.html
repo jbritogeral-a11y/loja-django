@@ -89,6 +89,12 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% if reg.ceremony.requirements %}
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                                <strong style="display: block; margin-bottom: 0.5rem; color: var(--accent);">Requisitos e Conselhos:</strong>
+                                <div style="font-size: 0.95rem; color: var(--text-muted); background: var(--gray-light); padding: 1rem; border-radius: 4px;">{{ reg.ceremony.requirements|linebreaks }}</div>
+                            </div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>

@@ -164,6 +164,14 @@ class Ceremony(models.Model):
     description = models.TextField(verbose_name="Descrição")
     image = models.ImageField(upload_to='ceremonies/', verbose_name="Imagem")
     event_date = models.DateTimeField(verbose_name="Data de Realização")
+    max_participants = models.PositiveIntegerField(default=0, verbose_name="Máximo de Participantes", help_text="0 para ilimitado")
+    requirements = models.TextField(blank=True, verbose_name="Requisitos e Conselhos", help_text="Informação visível apenas após a inscrição (ex: jejum, o que levar, etc)")
+
+    @property
+    def is_full(self):
+        if self.max_participants > 0:
+            return self.registrations.count() >= self.max_participants
+        return False
 
     def __str__(self):
         return self.name

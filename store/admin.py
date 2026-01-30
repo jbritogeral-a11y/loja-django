@@ -196,8 +196,12 @@ class CeremonyRegistrationInline(admin.TabularInline):
 
 @admin.register(Ceremony)
 class CeremonyAdmin(admin.ModelAdmin):
-    list_display = ['name', 'event_date']
+    list_display = ['name', 'event_date', 'max_participants', 'get_registrations_count']
     inlines = [CeremonyRegistrationInline]
+
+    def get_registrations_count(self, obj):
+        return obj.registrations.count()
+    get_registrations_count.short_description = "Inscritos"
 
 @admin.register(CeremonyRegistration)
 class CeremonyRegistrationAdmin(admin.ModelAdmin):

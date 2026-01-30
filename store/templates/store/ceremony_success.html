@@ -10,6 +10,13 @@
         Por favor, preencha agora a ficha de anamnese para completarmos o seu processo.
     </p>
     
+    {% if ceremony.requirements %}
+    <div style="background: #e3f2fd; padding: 2rem; border-radius: var(--radius); border: 1px solid #bbdefb; text-align: left; max-width: 700px; margin: 0 auto 2rem;">
+        <h3 style="margin-top: 0; color: #0d47a1;">ℹ️ Requisitos e Conselhos Importantes</h3>
+        <div style="line-height: 1.6; color: #1565c0;">{{ ceremony.requirements|linebreaks }}</div>
+    </div>
+    {% endif %}
+    
     <a href="{% url 'store:anamnesis' registration.id %}" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem; background-color: var(--accent);">
         Preencher Ficha de Anamnese ➤
     </a>

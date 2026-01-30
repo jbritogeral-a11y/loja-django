@@ -198,6 +198,12 @@ def ceremony_detail(request, ceremony_id):
     ceremony = get_object_or_404(Ceremony, id=ceremony_id)
     
     if request.method == 'POST':
+        # Verifica se está cheia antes de processar
+        if ceremony.is_full:
+            context = {'ceremony': ceremony, 'form': CeremonyRegistrationForm(), 'error': 'Desculpe, esta cerimónia já está lotada.'}
+            context.update(get_common_context())
+            return render(request, 'store/ceremony_detail.html', context)
+
         form = CeremonyRegistrationForm(request.POST)
         if form.is_valid():
             registration = form.save(commit=False)
