@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Order, Client, CeremonyRegistration, Anamnesis, PaymentMethod
+from .models import Order, Client, CeremonyRegistration, Anamnesis, PaymentMethod, Appointment
+from django.utils import timezone
+from datetime import timedelta
 
 class OrderCreateForm(forms.ModelForm):
     class Meta:
@@ -68,3 +70,29 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label="Email")
     subject = forms.CharField(label="Assunto", max_length=200)
     message = forms.CharField(label="Mensagem", widget=forms.Textarea(attrs={'rows': 5}))
+
+class AppointmentForm(forms.ModelForm):
+    start_time = forms.DateTimeField(
+        label="Data e Hora Preferida",
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+        help_text="Selecione a data e hora para a sessão."
+    )
+
+    class Meta:
+        model = Appointment
+        fields = ['start_time']
+
+    def clean_start_time(self):
+        start_time = self.cleaned_data['start_time']
+        if start_time < timezone.now():
+            raise forms.ValidationError("Não é possível agendar para o passado.")
+        return start_time
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_time = cleaned_data.get('start_time')
+        
+        # A validação de sobreposição complexa é feita na view ou aqui se tivermos acesso à duração
+        # Vamos deixar a lógica pesada para a view onde temos acesso à instância da Terapia
+        
+        return cleaned_data

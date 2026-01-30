@@ -20,4 +20,6 @@ urlpatterns = [
     path('cerimonias/<int:ceremony_id>/', views.ceremony_detail, name='ceremony_detail'),
     path('cerimonias/anamnese/<int:registration_id>/', views.anamnesis_view, name='anamnesis'),
     path('contactos/', views.contact_view, name='contact'),
+    path('terapias/', views.therapy_list, name='therapy_list'),
+    path('terapias/<slug:slug>/', views.therapy_detail, name='therapy_detail'),
 ]

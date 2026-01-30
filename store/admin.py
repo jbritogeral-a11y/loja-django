@@ -9,7 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile, Ceremony, CeremonyRegistration, Anamnesis
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile, Ceremony, CeremonyRegistration, Anamnesis, Therapy, Appointment
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -208,6 +208,53 @@ class CeremonyRegistrationAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'ceremony', 'created_at']
     inlines = [AnamnesisInline]
 
+@admin.register(Therapy)
+class TherapyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'price', 'duration_minutes', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ['therapy', 'user', 'start_time', 'end_time', 'confirmed']
+    list_filter = ['start_time', 'confirmed', 'therapy']
+    ordering = ['-start_time']
+
+# --- AGENDA / CALENDÁRIO ---
+from django.urls import path
+from django.http import JsonResponse
+
+def admin_calendar_view(request):
+    context = admin.site.each_context(request)
+    context['title'] = 'Agenda de Marcações'
+    return TemplateResponse(request, 'admin/calendar.html', context)
+
+def admin_calendar_events(request):
+    events = []
+    
+    # 1. Adicionar Terapias
+    appointments = Appointment.objects.all()
+    for app in appointments:
+        events.append({
+            'title': f"{app.therapy.name} ({app.user.first_name})",
+            'start': app.start_time.isoformat(),
+            'end': app.end_time.isoformat(),
+            'color': '#10b981' if app.confirmed else '#f59e0b', # Verde se confirmado, Amarelo se pendente
+            'url': reverse('admin:store_appointment_change', args=[app.id])
+        })
+
+    # 2. Adicionar Cerimónias
+    ceremonies = Ceremony.objects.all()
+    for cer in ceremonies:
+        events.append({
+            'title': f"Cerimónia: {cer.name}",
+            'start': cer.event_date.isoformat(),
+            'color': '#6366f1', # Roxo
+            'url': reverse('admin:store_ceremony_change', args=[cer.id])
+        })
+    
+    return JsonResponse(events, safe=False)
+
+
 # --- DASHBOARD PERSONALIZADO ---
 def admin_dashboard(request, extra_context=None):
     # 1. Top 10 Artigos Mais Vendidos
@@ -246,6 +293,17 @@ def admin_dashboard(request, extra_context=None):
         'total_clients': total_clients, 'ceremonies': ceremonies, 'recent_orders': recent_orders,
     }
     return TemplateResponse(request, 'admin/dashboard.html', context)
+
+# Injetar URLs personalizadas no Admin
+original_get_urls = admin.site.get_urls
+def get_admin_urls():
+    urls = original_get_urls()
+    custom_urls = [
+        path('agenda/', admin_calendar_view, name='admin_calendar'),
+        path('agenda/events/', admin_calendar_events, name='admin_calendar_events'),
+    ]
+    return custom_urls + urls
+admin.site.get_urls = get_admin_urls
 
 # Substitui a página inicial do Admin pelo nosso Dashboard
 admin.site.index = admin_dashboard

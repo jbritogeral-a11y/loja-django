@@ -7,7 +7,7 @@ from io import BytesIO
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from store.models import Category, Product, Client
+from store.models import Category, Product, Client, Therapy
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 
@@ -53,6 +53,21 @@ def populate():
                     print(f"Criado: {product_name}")
                 else:
                     print(f"Saltado (já existe): {product_name}")
+
+    # 3. Criar Terapias
+    print("\n--- A CRIAR TERAPIAS ---")
+    therapies = ["Reiki", "Massagem de Relaxamento", "Animal de Poder", "Limpeza Espiritual", "Limpeza Energética"]
+    for t_name in therapies:
+        if not Therapy.objects.filter(name=t_name).exists():
+            img = create_dummy_image()
+            Therapy.objects.create(
+                name=t_name,
+                description="Sessão terapêutica para equilíbrio do corpo e mente.",
+                price=random.randint(30, 80),
+                duration_minutes=60,
+                image=img
+            )
+            print(f"Criada Terapia: {t_name}")
 
     # 2. Criar 10 Clientes
     print("\n--- A CRIAR 10 CLIENTES ---")

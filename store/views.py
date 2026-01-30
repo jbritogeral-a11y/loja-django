@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony, SiteSettings, CeremonyRegistration, Anamnesis
+from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony, SiteSettings, CeremonyRegistration, Anamnesis, Therapy, Appointment
 from .cart import Cart
-from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm, ContactForm, AnamnesisForm
+from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm, ContactForm, AnamnesisForm, AppointmentForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -89,7 +89,9 @@ def profile(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     # Cerimónias
     registrations = CeremonyRegistration.objects.filter(user=request.user).order_by('-created_at')
-    context = {'orders': orders, 'registrations': registrations, 'user_form': user_form}
+    # Terapias
+    appointments = Appointment.objects.filter(user=request.user).order_by('-start_time')
+    context = {'orders': orders, 'registrations': registrations, 'appointments': appointments, 'user_form': user_form}
     context.update(get_common_context())
     return render(request, 'store/profile.html', context)
 
@@ -275,3 +277,50 @@ def contact_view(request):
     context = {'form': form}
     context.update(get_common_context())
     return render(request, 'store/contact.html', context)
+
+def therapy_list(request):
+    therapies = Therapy.objects.filter(is_active=True)
+    context = {'therapies': therapies}
+    context.update(get_common_context())
+    return render(request, 'store/therapy_list.html', context)
+
+@login_required(login_url='store:login')
+def therapy_detail(request, slug):
+    therapy = get_object_or_404(Therapy, slug=slug, is_active=True)
+    error = None
+
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            start_time = form.cleaned_data['start_time']
+            end_time = start_time + timezone.timedelta(minutes=therapy.duration_minutes)
+            
+            # 1. Verificar sobreposição com outras Terapias
+            overlap = Appointment.objects.filter(
+                start_time__lt=end_time,
+                end_time__gt=start_time
+            ).exists()
+
+            # 2. Verificar sobreposição com Cerimónias (opcional, mas pedido na agenda)
+            # Assumindo que o terapeuta também faz as cerimónias
+            ceremony_overlap = Ceremony.objects.filter(
+                event_date__lt=end_time,
+                event_date__gte=start_time # Simplificação: cerimónias duram X tempo, aqui assumimos conflito se começar durante
+            ).exists()
+
+            if overlap or ceremony_overlap:
+                error = "Já existe um agendamento ou cerimónia nesse horário. Por favor escolha outro."
+            else:
+                Appointment.objects.create(
+                    user=request.user,
+                    therapy=therapy,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                return render(request, 'store/therapy_success.html', {'therapy': therapy, **get_common_context()})
+    else:
+        form = AppointmentForm()
+
+    context = {'therapy': therapy, 'form': form, 'error': error}
+    context.update(get_common_context())
+    return render(request, 'store/therapy_detail.html', context)

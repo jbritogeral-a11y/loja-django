@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from datetime import timedelta
 
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nome da Categoria")
@@ -200,3 +201,31 @@ class Anamnesis(models.Model):
     class Meta:
         verbose_name = "Ficha de Anamnese"
         verbose_name_plural = "Fichas de Anamnese"
+
+class Therapy(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Nome da Terapia")
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(verbose_name="Descrição")
+    image = models.ImageField(upload_to='therapies/', verbose_name="Imagem")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Preço")
+    duration_minutes = models.PositiveIntegerField(default=60, verbose_name="Duração (minutos)")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo?")
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class Appointment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments', verbose_name="Cliente")
+    therapy = models.ForeignKey(Therapy, on_delete=models.CASCADE, verbose_name="Terapia")
+    start_time = models.DateTimeField(verbose_name="Data e Hora de Início")
+    end_time = models.DateTimeField(verbose_name="Data e Hora de Fim")
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed = models.BooleanField(default=False, verbose_name="Confirmado?")
+
+    def __str__(self):
+        return f"{self.therapy.name} - {self.user.username} - {self.start_time}"
