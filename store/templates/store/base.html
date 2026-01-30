@@ -118,12 +118,48 @@
             .btn-primary { width: 100%; }
         }
 
+        /* Dropdown Menu */
+        .dropdown { position: relative; display: inline-block; margin-right: 15px; }
+        .dropdown-toggle { cursor: pointer; }
+        .dropdown-menu { 
+            display: none; 
+            position: absolute; 
+            background-color: white; 
+            min-width: 200px; 
+            box-shadow: var(--shadow-md); 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            padding: 0.5rem 0;
+            text-align: left;
+        }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-item { 
+            display: block; 
+            padding: 0.6rem 1.2rem; 
+            color: var(--text-main); 
+            font-size: 0.9rem; 
+            transition: background 0.2s; 
+        }
+        .dropdown-item:hover { background-color: var(--gray-light); color: var(--accent); }
+
         /* Ajustes Mobile para o Header */
         @media (max-width: 768px) {
             header { flex-direction: column; gap: 1rem; padding: 1rem; position: relative; }
             nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; text-align: center; }
             .nav-link { margin-right: 0 !important; padding: 5px 10px; }
             .logo { margin-bottom: 0.5rem; }
+            
+            /* Dropdown Mobile */
+            .dropdown { width: 100%; margin-right: 0; }
+            .dropdown-menu { 
+                position: relative; 
+                width: 100%; 
+                box-shadow: none; 
+                background: var(--gray-light);
+            }
         }
     </style>
 </head>
@@ -132,9 +168,14 @@
     <header>
         <a href="/" class="logo">{{ site_settings.site_name|default:"STORE." }}</a>
         <nav>
-            {% for cat in categories %}
-                <a href="{% url 'store:category_detail' cat.slug %}" class="nav-link" style="margin-right: 15px;">{{ cat.name }}</a>
-            {% endfor %}
+            <div class="dropdown">
+                <a href="#" class="nav-link dropdown-toggle">Categorias ▾</a>
+                <div class="dropdown-menu">
+                    {% for cat in categories %}
+                        <a href="{% url 'store:category_detail' cat.slug %}" class="dropdown-item">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
             <a href="{% url 'store:ceremony_list' %}" class="nav-link" style="margin-right: 15px; font-weight: 600; color: var(--accent);">Cerimónias</a>
         </nav>
         <nav>

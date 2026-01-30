@@ -1,6 +1,7 @@
 import os
 import django
 import random
+from io import BytesIO
 
 # Configurar o ambiente Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
@@ -8,6 +9,19 @@ django.setup()
 
 from store.models import Category, Product, Client
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+
+# Tenta importar PIL para gerar imagens
+try:
+    from PIL import Image
+    def create_dummy_image():
+        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        image = Image.new('RGB', (600, 600), color=color)
+        thumb_io = BytesIO()
+        image.save(thumb_io, format='JPEG')
+        return ContentFile(thumb_io.getvalue(), name='produto_teste.jpg')
+except ImportError:
+    def create_dummy_image(): return None
 
 def populate():
     print("--- A INICIAR O SCRIPT DE POPULAÇÃO ---")
@@ -25,6 +39,7 @@ def populate():
                 product_name = f"Produto {cat.name} {i}"
                 # Verifica se já existe para não duplicar
                 if not Product.objects.filter(name=product_name).exists():
+                    img = create_dummy_image()
                     Product.objects.create(
                         category=cat,
                         name=product_name,
@@ -32,7 +47,8 @@ def populate():
                         price=random.randint(10, 100), # Preço aleatório entre 10 e 100
                         stock=50,
                         is_active=True,
-                        is_featured=False
+                        is_featured=False,
+                        image=img
                     )
                     print(f"Criado: {product_name}")
                 else:
