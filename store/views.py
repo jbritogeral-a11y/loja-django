@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony, SiteSettings
+from .models import Product, Category, ProductVariant, Order, OrderItem, Ceremony, SiteSettings, CeremonyRegistration, Anamnesis
 from .cart import Cart
-from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm, ContactForm
+from .forms import OrderCreateForm, UserUpdateForm, UserRegisterForm, CeremonyRegistrationForm, ContactForm, AnamnesisForm
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -85,8 +85,11 @@ def profile(request):
     else:
         user_form = UserUpdateForm(instance=request.user)
     
+    # Encomendas
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    context = {'orders': orders, 'user_form': user_form}
+    # Cerimónias
+    registrations = CeremonyRegistration.objects.filter(user=request.user).order_by('-created_at')
+    context = {'orders': orders, 'registrations': registrations, 'user_form': user_form}
     context.update(get_common_context())
     return render(request, 'store/profile.html', context)
 
@@ -199,16 +202,48 @@ def ceremony_detail(request, ceremony_id):
         if form.is_valid():
             registration = form.save(commit=False)
             registration.ceremony = ceremony
+            if request.user.is_authenticated:
+                registration.user = request.user
             registration.save()
-            context = {'ceremony': ceremony}
+            context = {'ceremony': ceremony, 'registration': registration}
             context.update(get_common_context())
             return render(request, 'store/ceremony_success.html', context)
     else:
-        form = CeremonyRegistrationForm()
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data = {
+                'full_name': f"{request.user.first_name} {request.user.last_name}",
+                'email': request.user.email
+            }
+        form = CeremonyRegistrationForm(initial=initial_data)
         
     context = {'ceremony': ceremony, 'form': form}
     context.update(get_common_context())
     return render(request, 'store/ceremony_detail.html', context)
+
+def anamnesis_view(request, registration_id):
+    registration = get_object_or_404(CeremonyRegistration, id=registration_id)
+    
+    # Verifica se já existe anamnese
+    try:
+        anamnesis = registration.anamnesis
+        instance = anamnesis
+    except Anamnesis.DoesNotExist:
+        instance = None
+
+    if request.method == 'POST':
+        form = AnamnesisForm(request.POST, instance=instance)
+        if form.is_valid():
+            anamnesis = form.save(commit=False)
+            anamnesis.registration = registration
+            anamnesis.save()
+            return redirect('store:profile')
+    else:
+        form = AnamnesisForm(instance=instance)
+
+    context = {'form': form, 'registration': registration}
+    context.update(get_common_context())
+    return render(request, 'store/anamnesis.html', context)
 
 def contact_view(request):
     if request.method == 'POST':

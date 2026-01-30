@@ -1,0 +1,31 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto; padding: 2rem; background: white; border-radius: var(--radius); border: 1px solid var(--border);">
+    <h1 style="text-align: center; margin-bottom: 1rem;">Ficha de Anamnese</h1>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
+        Para a cerimónia: <strong>{{ registration.ceremony.name }}</strong>
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% for field in form %}
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="display: block; color: var(--text-muted); margin-top: 0.2rem;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 2rem;">Guardar Ficha</button>
+    </form>
+</div>
+<style>
+    textarea { width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; }
+</style>
+{% endblock %}

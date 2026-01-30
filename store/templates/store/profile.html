@@ -14,6 +14,7 @@
             </div>
             <nav style="display: flex; flex-direction: column;">
                 <a href="#encomendas" onclick="showTab('orders')" class="profile-link active">Minhas Encomendas</a>
+                <a href="#cerimonias" onclick="showTab('ceremonies')" class="profile-link">Minhas Cerimónias</a>
                 <a href="#dados" onclick="showTab('settings')" class="profile-link">Meus Dados</a>
                 <form action="{% url 'store:logout' %}" method="post" style="border-top: 1px solid var(--border);">
                     {% csrf_token %}
@@ -65,6 +66,34 @@
                         <p style="color: var(--text-muted);">Ainda não efetuou nenhuma encomenda.</p>
                         <a href="/" class="btn-primary" style="display: inline-block; width: auto;">Ir para a Loja</a>
                     </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB: CERIMÓNIAS -->
+            <div id="tab-ceremonies" style="display: none;">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Cerimónias Inscritas</h2>
+                {% if registrations %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% for reg in registrations %}
+                        <div style="border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); background: white;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 1.1rem;">{{ reg.ceremony.name }}</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-muted);">{{ reg.ceremony.event_date|date:"d F Y, H:i" }}</div>
+                                </div>
+                                <div>
+                                    {% if reg.anamnesis %}
+                                        <a href="{% url 'store:anamnesis' reg.id %}" class="btn-primary" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; width: auto; display: inline-block; padding: 0.5rem 1rem;">✓ Anamnese Preenchida</a>
+                                    {% else %}
+                                        <a href="{% url 'store:anamnesis' reg.id %}" class="btn-primary" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; width: auto; display: inline-block; padding: 0.5rem 1rem;">⚠ Preencher Anamnese</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--text-muted);">Não está inscrito em nenhuma cerimónia.</p>
                 {% endif %}
             </div>
 
@@ -121,6 +150,7 @@
     function showTab(tabName) {
         // Esconder todos
         document.getElementById('tab-orders').style.display = 'none';
+        document.getElementById('tab-ceremonies').style.display = 'none';
         document.getElementById('tab-settings').style.display = 'none';
         
         // Remover active dos links

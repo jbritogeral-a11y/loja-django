@@ -13,10 +13,11 @@ urlpatterns = [
     path('carrinho/remover/<str:cart_key>/', views.cart_remove, name='cart_remove'),
     path('checkout/', views.checkout, name='checkout'),
     path('minha-conta/', views.profile, name='profile'),
+    path('registar/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='store/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
-    path('registar/', views.register, name='register'),
     path('cerimonias/', views.ceremony_list, name='ceremony_list'),
     path('cerimonias/<int:ceremony_id>/', views.ceremony_detail, name='ceremony_detail'),
+    path('cerimonias/anamnese/<int:registration_id>/', views.anamnesis_view, name='anamnesis'),
     path('contactos/', views.contact_view, name='contact'),
 ]

@@ -9,7 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile, Ceremony, CeremonyRegistration
+from .models import Category, Product, ProductImage, ProductVariant, Order, OrderItem, SiteSettings, PaymentMethod, ShippingMethod, Client, Administrator, Profile, Ceremony, CeremonyRegistration, Anamnesis
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -184,16 +184,25 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 admin.site.register(PaymentMethod)
 admin.site.register(ShippingMethod)
 
+class AnamnesisInline(admin.StackedInline):
+    model = Anamnesis
+    can_delete = False
+
 class CeremonyRegistrationInline(admin.TabularInline):
     model = CeremonyRegistration
     extra = 0
-    readonly_fields = ['full_name', 'email', 'payment_preference', 'created_at']
+    readonly_fields = ['full_name', 'email', 'payment_method', 'created_at']
     can_delete = False
 
 @admin.register(Ceremony)
 class CeremonyAdmin(admin.ModelAdmin):
     list_display = ['name', 'event_date']
     inlines = [CeremonyRegistrationInline]
+
+@admin.register(CeremonyRegistration)
+class CeremonyRegistrationAdmin(admin.ModelAdmin):
+    list_display = ['full_name', 'ceremony', 'created_at']
+    inlines = [AnamnesisInline]
 
 # --- DASHBOARD PERSONALIZADO ---
 def admin_dashboard(request, extra_context=None):

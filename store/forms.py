@@ -1,63 +1,70 @@
 from django import forms
-from .models import Order, CeremonyRegistration
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from .models import Order, Client, CeremonyRegistration, Anamnesis, PaymentMethod
 
 class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['full_name', 'email', 'address', 'city', 'shipping_method', 'payment_method']
+        fields = ['full_name', 'email', 'address', 'city', 'payment_method', 'shipping_method']
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome Completo'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Morada Completa', 'rows': 3}),
-            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cidade'}),
-            'shipping_method': forms.Select(attrs={'class': 'form-control'}),
-            'payment_method': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'rows': 3}),
         }
-        labels = {
-            'full_name': 'Nome',
-            'address': 'Morada',
-            'city': 'Cidade',
-            'shipping_method': 'Método de Envio',
-            'payment_method': 'Método de Pagamento',
-        }
+
+class UserRegisterForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label="Palavra-passe")
+    confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar Palavra-passe")
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True, label="Primeiro Nome")
+    last_name = forms.CharField(required=True, label="Último Nome")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'password']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("password") != cleaned_data.get("confirm_password"):
+            self.add_error('confirm_password', "As palavras-passe não coincidem.")
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+            # Garante que é Cliente
+            Client.objects.filter(pk=user.pk).update(is_staff=False, is_superuser=False)
+        return user
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Primeiro Nome'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Último Nome'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-        }
-
-class UserRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
-    
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
-    
-    # Adiciona classe CSS aos campos automáticos do Django
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
 
 class CeremonyRegistrationForm(forms.ModelForm):
+    # Filtra apenas métodos de pagamento ativos
+    payment_method = forms.ModelChoiceField(
+        queryset=PaymentMethod.objects.filter(is_active=True),
+        label="Método de Pagamento",
+        empty_label="Selecione um método"
+    )
+
     class Meta:
         model = CeremonyRegistration
-        fields = ['full_name', 'email', 'payment_preference']
+        fields = ['full_name', 'email', 'payment_method']
+
+class AnamnesisForm(forms.ModelForm):
+    class Meta:
+        model = Anamnesis
+        exclude = ['registration', 'created_at']
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'O seu nome'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'O seu email'}),
-            'payment_preference': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: MBWAY, Transferência...'}),
+            'health_issues': forms.Textarea(attrs={'rows': 3}),
+            'medications': forms.Textarea(attrs={'rows': 2}),
+            'goals': forms.Textarea(attrs={'rows': 3}),
         }
 
 class ContactForm(forms.Form):
-    name = forms.CharField(label='Nome', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'O seu nome'}))
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'O seu email'}))
-    subject = forms.CharField(label='Assunto', max_length=200, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto'}))
-    message = forms.CharField(label='Mensagem', widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'A sua mensagem'}))
+    name = forms.CharField(label="Nome", max_length=100)
+    email = forms.EmailField(label="Email")
+    subject = forms.CharField(label="Assunto", max_length=200)
+    message = forms.CharField(label="Mensagem", widget=forms.Textarea(attrs={'rows': 5}))

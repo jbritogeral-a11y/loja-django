@@ -6,10 +6,16 @@
     <h1 style="margin-bottom: 1rem;">Inscrição Confirmada!</h1>
     <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem;">
         A sua inscrição na cerimónia <strong>{{ ceremony.name }}</strong> foi registada com sucesso.
+        <br><br>
+        Por favor, preencha agora a ficha de anamnese para completarmos o seu processo.
     </p>
     
-    <a href="{% url 'store:ceremony_list' %}" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem;">
-        Voltar às Cerimónias
+    <a href="{% url 'store:anamnesis' registration.id %}" class="btn-primary" style="display: inline-block; width: auto; padding: 0.8rem 2rem; background-color: var(--accent);">
+        Preencher Ficha de Anamnese ➤
+    </a>
+    <br><br>
+    <a href="{% url 'store:ceremony_list' %}" style="color: var(--text-muted); text-decoration: underline; font-size: 0.9rem;">
+        Voltar à lista (Preencher mais tarde)
     </a>
 </div>
 {% endblock %}

@@ -172,5 +172,23 @@ class CeremonyRegistration(models.Model):
     ceremony = models.ForeignKey(Ceremony, related_name='registrations', on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200, verbose_name="Nome Completo")
     email = models.EmailField(verbose_name="Email")
-    payment_preference = models.CharField(max_length=100, verbose_name="Preferência de Pagamento", help_text="Ex: Transferência, MBWAY, Numerário")
+    # Alterado para usar os métodos de pagamento da loja
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, verbose_name="Método de Pagamento")
     created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='ceremony_registrations')
+
+    def __str__(self):
+        return f"{self.full_name} - {self.ceremony.name}"
+
+class Anamnesis(models.Model):
+    registration = models.OneToOneField(CeremonyRegistration, on_delete=models.CASCADE, related_name='anamnesis', verbose_name="Inscrição")
+    health_issues = models.TextField(verbose_name="Problemas de Saúde", blank=True, help_text="Tem algum problema de saúde que devamos saber?")
+    medications = models.TextField(verbose_name="Medicação", blank=True, help_text="Toma alguma medicação regular?")
+    surgeries = models.TextField(verbose_name="Cirurgias Recentes", blank=True)
+    goals = models.TextField(verbose_name="Objetivos / Intenções", blank=True, help_text="Qual a sua intenção com esta cerimónia?")
+    observations = models.TextField(verbose_name="Outras Observações", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Ficha de Anamnese"
+        verbose_name_plural = "Fichas de Anamnese"
